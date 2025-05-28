@@ -2,16 +2,16 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Music from "./Music";
 
-const LatestsHits = ({handle} : {handle: any}) => {
+const LatestsHits = () => {
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.title}>
         Latests hits
       </Text>
       <View style={styles.mainContainer}>
-        <Music handle={handle} />
-        <Music handle={handle} />
-        <Music handle={handle} />
+        <Music songName="Can't tell me nothing" songAuthor="Kanye West" duration="3:44" />
+        <Music songName="Fair Trade" songAuthor="Drake" duration="4:02" />
+        <Music songName="R U Mine" songAuthor="Arctic Monkeys" duration="3:57" />
       </View>
     </View>
   )

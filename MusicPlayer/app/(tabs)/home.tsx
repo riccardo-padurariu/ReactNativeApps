@@ -1,14 +1,12 @@
 import LatestsHits from '@/components/LatestsHits';
 import Scroll from '@/components/Scroll';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
 
-  const [isListening,setIsListening] = React.useState(false);
+  const [albumOpen,setAlbumOpen] = React.useState(false);
 
   return (
     <ScrollView style={styles.mainContainer}>
@@ -20,56 +18,20 @@ export default function HomeScreen() {
           <FontAwesome name="user-circle-o" size={30} color="#888888" />
         </TouchableOpacity>
       </View>
-      <LatestsHits handle={setIsListening} />
-      <Scroll type='album' margin={0}/>
-      <Scroll type='playlist' margin={90}/>
+      <LatestsHits />
+      <Scroll 
+        type='album' 
+        margin={0} 
+        condition={albumOpen} 
+        setCondition={setAlbumOpen} 
+      />
+      <Scroll 
+        type='playlist' 
+        margin={90} 
+        condition={albumOpen} 
+        setCondition={setAlbumOpen}
+      />
 
-      <Modal 
-        visible={isListening}
-        animationType='slide'
-      >
-        <View style={styles.musicModal}>
-          <TouchableOpacity onPress={() => setIsListening(false)} style={styles.backButton}>
-            <AntDesign name="down" size={24} color="white" />
-          </TouchableOpacity>
-        
-          <View style={styles.coverPlaceholder}>
-            <Feather name="music" size={124} color="#008A0B" />
-          </View>
-
-          <View style={{marginTop: 20,marginBottom: 30}}>
-            <Text style={styles.musicName}>Song name</Text>
-            <Text style={styles.musicAuthor}>Song author</Text>
-          </View>
-          
-          <View style={{flex: 1,height: 10, alignItems: 'flex-end'}}>
-            <Text style={styles.time}>2:34</Text>
-            <View style={styles.support}>
-              <View style={styles.progress}></View>
-            </View>
-          </View>
-
-          <View style={{display: 'flex',flexDirection: "row",alignItems: 'center',justifyContent: 'space-between',padding: 35}}>
-            <TouchableOpacity>
-              <View>
-                <AntDesign name="stepbackward" size={55} color="white" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={styles.playButton}>
-                <AntDesign name="caretright" size={50} color="black" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View>
-                <AntDesign name="stepforward" size={55} color="white" />
-              </View>
-            </TouchableOpacity>
-          </View>
-
-        </View>
-
-      </Modal>
     </ScrollView>
   );
 }
@@ -103,7 +65,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E1E1E',
     borderRadius: 30,
     width: 56,
-    padding: 15
+    padding: 15,
+    paddingLeft: 17
   },
   coverPlaceholder: {
     marginTop: 50,
@@ -141,7 +104,7 @@ const styles = StyleSheet.create({
   },
   playButton: {
     backgroundColor: 'white',
-    padding: 10,
+    padding: 17,
     borderRadius: 40
   }
 });

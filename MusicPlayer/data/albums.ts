@@ -1,0 +1,202 @@
+export const albums = [
+  {
+    albumName: "My Beautiful Dark Twisted Fantasy",
+    author: "Kanye West",
+    numberOfSongs: 13,
+    songs: [
+      { name: "Dark Fantasy", author: "Kanye West", duration: "4:41" },
+      { name: "Gorgeous", author: "Kanye West", duration: "5:57" },
+      { name: "Power", author: "Kanye West", duration: "3:41" },
+      { name: "All of the Lights", author: "Kanye West", duration: "4:59" },
+      { name: "Monster", author: "Kanye West", duration: "6:18" },
+      { name: "So Appalled", author: "Kanye West", duration: "6:38" },
+      { name: "Devil in a New Dress", author: "Kanye West", duration: "5:52" },
+      { name: "Runaway", author: "Kanye West", duration: "9:08" },
+      { name: "Hell of a Life", author: "Kanye West", duration: "5:27" },
+      { name: "Blame Game", author: "Kanye West", duration: "7:49" },
+      { name: "Lost in the World", author: "Kanye West", duration: "4:16" },
+      { name: "Who Will Survive in America", author: "Kanye West", duration: "1:38" },
+      { name: "See Me Now", author: "Kanye West", duration: "6:03" }
+    ]
+  },
+  {
+    albumName: "To Pimp a Butterfly",
+    author: "Kendrick Lamar",
+    numberOfSongs: 16,
+    songs: [
+      { name: "Wesley's Theory", author: "Kendrick Lamar", duration: "4:47" },
+      { name: "For Free? (Interlude)", author: "Kendrick Lamar", duration: "2:10" },
+      { name: "King Kunta", author: "Kendrick Lamar", duration: "3:54" },
+      { name: "Institutionalized", author: "Kendrick Lamar", duration: "4:31" },
+      { name: "These Walls", author: "Kendrick Lamar", duration: "5:00" },
+      { name: "u", author: "Kendrick Lamar", duration: "4:28" },
+      { name: "Alright", author: "Kendrick Lamar", duration: "3:39" },
+      { name: "For Sale? (Interlude)", author: "Kendrick Lamar", duration: "4:51" },
+      { name: "Momma", author: "Kendrick Lamar", duration: "4:43" },
+      { name: "Hood Politics", author: "Kendrick Lamar", duration: "4:52" },
+      { name: "How Much a Dollar Cost", author: "Kendrick Lamar", duration: "4:21" },
+      { name: "Complexion (A Zulu Love)", author: "Kendrick Lamar", duration: "4:23" },
+      { name: "The Blacker the Berry", author: "Kendrick Lamar", duration: "5:28" },
+      { name: "You Ain't Gotta Lie (Momma Said)", author: "Kendrick Lamar", duration: "4:01" },
+      { name: "i", author: "Kendrick Lamar", duration: "5:36" },
+      { name: "Mortal Man", author: "Kendrick Lamar", duration: "12:07" }
+    ]
+  },
+  {
+    albumName: "Rumours",
+    author: "Fleetwood Mac",
+    numberOfSongs: 11,
+    songs: [
+      { name: "Second Hand News", author: "Fleetwood Mac", duration: "2:43" },
+      { name: "Dreams", author: "Fleetwood Mac", duration: "4:17" },
+      { name: "Never Going Back Again", author: "Fleetwood Mac", duration: "2:14" },
+      { name: "Don't Stop", author: "Fleetwood Mac", duration: "3:13" },
+      { name: "Go Your Own Way", author: "Fleetwood Mac", duration: "3:38" },
+      { name: "Songbird", author: "Fleetwood Mac", duration: "3:20" },
+      { name: "The Chain", author: "Fleetwood Mac", duration: "4:30" },
+      { name: "You Make Loving Fun", author: "Fleetwood Mac", duration: "3:36" },
+      { name: "I Don't Want to Know", author: "Fleetwood Mac", duration: "3:11" },
+      { name: "Oh Daddy", author: "Fleetwood Mac", duration: "3:54" },
+      { name: "Gold Dust Woman", author: "Fleetwood Mac", duration: "4:51" }
+    ]
+  },
+  {
+    albumName: "Random Access Memories",
+    author: "Daft Punk",
+    numberOfSongs: 13,
+    songs: [
+      { name: "Give Life Back to Music", author: "Daft Punk", duration: "4:34" },
+      { name: "The Game of Love", author: "Daft Punk", duration: "5:22" },
+      { name: "Giorgio by Moroder", author: "Daft Punk", duration: "9:04" },
+      { name: "Within", author: "Daft Punk", duration: "3:48" },
+      { name: "Instant Crush", author: "Daft Punk", duration: "5:37" },
+      { name: "Lose Yourself to Dance", author: "Daft Punk", duration: "5:53" },
+      { name: "Touch", author: "Daft Punk", duration: "8:18" },
+      { name: "Get Lucky", author: "Daft Punk", duration: "6:09" },
+      { name: "Beyond", author: "Daft Punk", duration: "4:50" },
+      { name: "Motherboard", author: "Daft Punk", duration: "5:41" },
+      { name: "Fragments of Time", author: "Daft Punk", duration: "4:39" },
+      { name: "Doin' It Right", author: "Daft Punk", duration: "4:11" },
+      { name: "Contact", author: "Daft Punk", duration: "6:21" }
+    ]
+  },
+  {
+    albumName: "Dummy",
+    author: "Portishead",
+    numberOfSongs: 11,
+    songs: [
+      { name: "Mysterons", author: "Portishead", duration: "5:02" },
+      { name: "Sour Times", author: "Portishead", duration: "4:11" },
+      { name: "Strangers", author: "Portishead", duration: "3:55" },
+      { name: "It Could Be Sweet", author: "Portishead", duration: "4:16" },
+      { name: "Wandering Star", author: "Portishead", duration: "4:56" },
+      { name: "It's a Fire", author: "Portishead", duration: "3:49" },
+      { name: "Numb", author: "Portishead", duration: "3:57" },
+      { name: "Roads", author: "Portishead", duration: "5:02" },
+      { name: "Pedestal", author: "Portishead", duration: "3:39" },
+      { name: "Biscuit", author: "Portishead", duration: "5:02" },
+      { name: "Glory Box", author: "Portishead", duration: "5:06" }
+    ]
+  },
+  {
+    albumName: "Sgt. Pepper's Lonely Hearts Club Band",
+    author: "The Beatles",
+    numberOfSongs: 13,
+    songs: [
+      { name: "Sgt. Pepper's Lonely Hearts Club Band", author: "The Beatles", duration: "2:02" },
+      { name: "With a Little Help from My Friends", author: "The Beatles", duration: "2:44" },
+      { name: "Lucy in the Sky with Diamonds", author: "The Beatles", duration: "3:28" },
+      { name: "Getting Better", author: "The Beatles", duration: "2:47" },
+      { name: "Fixing a Hole", author: "The Beatles", duration: "2:36" },
+      { name: "She's Leaving Home", author: "The Beatles", duration: "3:35" },
+      { name: "Being for the Benefit of Mr. Kite!", author: "The Beatles", duration: "2:37" },
+      { name: "Within You Without You", author: "The Beatles", duration: "5:05" },
+      { name: "When I'm Sixty-Four", author: "The Beatles", duration: "2:37" },
+      { name: "Lovely Rita", author: "The Beatles", duration: "2:42" },
+      { name: "Good Morning Good Morning", author: "The Beatles", duration: "2:41" },
+      { name: "Sgt. Pepper's Lonely Hearts Club Band (Reprise)", author: "The Beatles", duration: "1:19" },
+      { name: "A Day in the Life", author: "The Beatles", duration: "5:33" }
+    ]
+  },
+  {
+    albumName: "Donda",
+    author: "Kanye West",
+    numberOfSongs: 27,
+    songs: [
+      { name: "Donda Chant", author: "Kanye West", duration: "0:52" },
+      { name: "Jail", author: "Kanye West", duration: "4:57" },
+      { name: "God Breathed", author: "Kanye West", duration: "5:33" },
+      { name: "Off the Grid", author: "Kanye West", duration: "5:39" },
+      { name: "Hurricane", author: "Kanye West", duration: "4:03" },
+      { name: "Praise God", author: "Kanye West", duration: "3:47" },
+      { name: "Jonah", author: "Kanye West", duration: "3:15" },
+      { name: "Ok Ok", author: "Kanye West", duration: "3:25" },
+      { name: "Junya", author: "Kanye West", duration: "2:28" },
+      { name: "Believe What I Say", author: "Kanye West", duration: "4:02" },
+      { name: "24", author: "Kanye West", duration: "3:18" },
+      { name: "Remote Control", author: "Kanye West", duration: "3:19" },
+      { name: "Moon", author: "Kanye West", duration: "2:36" },
+      { name: "Heaven and Hell", author: "Kanye West", duration: "2:25" },
+      { name: "Donda", author: "Kanye West", duration: "2:08" },
+      { name: "Keep My Spirit Alive", author: "Kanye West", duration: "3:41" },
+      { name: "Jesus Lord", author: "Kanye West", duration: "8:59" },
+      { name: "New Again", author: "Kanye West", duration: "3:03" },
+      { name: "Tell The Vision", author: "Kanye West", duration: "3:03" },
+      { name: "Lord I Need You", author: "Kanye West", duration: "2:42" },
+      { name: "Pure Souls", author: "Kanye West", duration: "5:02" },
+      { name: "Come to Life", author: "Kanye West", duration: "5:10" },
+      { name: "No Child Left Behind", author: "Kanye West", duration: "2:58" },
+      { name: "Jail Pt 2", author: "Kanye West", duration: "4:57" },
+      { name: "Ok Ok Pt 2", author: "Kanye West", duration: "3:25" },
+      { name: "Junya Pt 2", author: "Kanye West", duration: "3:04" },
+      { name: "Jesus Lord Pt 2", author: "Kanye West", duration: "11:31" }
+    ]
+  },
+  {
+    albumName: "Certified Lover Boy",
+    author: "Drake",
+    numberOfSongs: 21,
+    songs: [
+      { name: "Champagne Poetry", author: "Drake", duration: "5:36" },
+      { name: "Papi’s Home", author: "Drake", duration: "2:58" },
+      { name: "Girls Want Girls", author: "Drake", duration: "3:41" },
+      { name: "In The Bible", author: "Drake", duration: "4:57" },
+      { name: "Love All", author: "Drake", duration: "3:48" },
+      { name: "Fair Trade", author: "Drake", duration: "4:51" },
+      { name: "Way 2 Sexy", author: "Drake", duration: "4:17" },
+      { name: "TSU", author: "Drake", duration: "5:08" },
+      { name: "N 2 Deep", author: "Drake", duration: "4:33" },
+      { name: "Pipe Down", author: "Drake", duration: "3:25" },
+      { name: "Yebba’s Heartbreak", author: "Drake", duration: "2:13" },
+      { name: "No Friends In The Industry", author: "Drake", duration: "3:24" },
+      { name: "Knife Talk", author: "Drake", duration: "4:03" },
+      { name: "7am On Bridle Path", author: "Drake", duration: "3:59" },
+      { name: "Race My Mind", author: "Drake", duration: "4:29" },
+      { name: "Fountains", author: "Drake", duration: "3:12" },
+      { name: "Get Along Better", author: "Drake", duration: "3:50" },
+      { name: "You Only Live Twice", author: "Drake", duration: "3:33" },
+      { name: "IMY2", author: "Drake", duration: "4:12" },
+      { name: "Fucking Fans", author: "Drake", duration: "4:05" },
+      { name: "The Remorse", author: "Drake", duration: "5:51" }
+    ]
+  },
+  {
+    albumName: "AM",
+    author: "Arctic Monkeys",
+    numberOfSongs: 12,
+    songs: [
+      { name: "Do I Wanna Know?", author: "Arctic Monkeys", duration: "4:33" },
+      { name: "R U Mine?", author: "Arctic Monkeys", duration: "3:21" },
+      { name: "One for the Road", author: "Arctic Monkeys", duration: "3:26" },
+      { name: "Arabella", author: "Arctic Monkeys", duration: "3:27" },
+      { name: "I Want It All", author: "Arctic Monkeys", duration: "3:05" },
+      { name: "No. 1 Party Anthem", author: "Arctic Monkeys", duration: "4:03" },
+      { name: "Mad Sounds", author: "Arctic Monkeys", duration: "3:35" },
+      { name: "Fireside", author: "Arctic Monkeys", duration: "3:01" },
+      { name: "Why'd You Only Call Me When You're High?", author: "Arctic Monkeys", duration: "2:41" },
+      { name: "Snap Out of It", author: "Arctic Monkeys", duration: "3:13" },
+      { name: "Knee Socks", author: "Arctic Monkeys", duration: "4:17" },
+      { name: "I Wanna Be Yours", author: "Arctic Monkeys", duration: "3:04" }
+    ]
+  }
+]
