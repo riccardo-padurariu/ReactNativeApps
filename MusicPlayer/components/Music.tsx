@@ -16,6 +16,18 @@ const Music = ({
   const [isListening,setIsListening] = React.useState(false);
   const [currentTime,setCurrentTime] = React.useState(0);
 
+  /* 
+    <ListenModal 
+      condition={isListening} 
+      setCondition={setIsListening}
+      songName={songName}
+      songAuthor={songAuthor}
+      duration={duration}
+      currentTime={currentTime}
+      setCurrentTime={setCurrentTime}
+    />
+  */
+
   return (
     <View>
       <TouchableOpacity onPress={() => setIsListening(true)}>
@@ -40,7 +52,7 @@ const Music = ({
         currentTime={currentTime}
         setCurrentTime={setCurrentTime}
       />
-      
+
     </View>
   )
 }

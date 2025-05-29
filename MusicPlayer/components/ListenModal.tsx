@@ -1,7 +1,8 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
-import React from "react";
+import React, { useEffect } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 
 const ListenModal = ({
   condition,
@@ -21,7 +22,16 @@ const ListenModal = ({
   setCurrentTime: any
 }) => {
 
-  const [isPlaying,setIsPlaying] = React.useState(false);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setInterval>>();
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
   const getSeconds = (duration: string) => {
     let seconds = 0;
@@ -35,24 +45,49 @@ const ListenModal = ({
 
   const portion = 100/getSeconds(duration);
 
-  let timer;
+  let timer: ReturnType<typeof setInterval>;
+
+  const format = (time: number) => {
+
+
+    if(time === 0)
+      return {minutes: '0',seconds: '0'};
+
+    const seconds = String(time%60);
+    const minutes = String((time/60) | 0);
+
+    return {minutes: minutes,seconds: seconds};
+  }
 
   const play = () => {
+    if (currentTime >= getSeconds(duration)) {
+      setCurrentTime(0);
+    }
     setIsPlaying(true);
-    //timer = setInterval(() => {
-    //if(currentTime <= 100)
-      //setCurrentTime(prev => prev+1);
-      
-    //},1000);
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    timerRef.current = setInterval(() => {
+      setCurrentTime((prev: number) => {
+        const newTime = prev + 1;
+        if (newTime >= getSeconds(duration)) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+          setIsPlaying(false);
+        }
+        return newTime;
+      });
+    }, 1000);
   }
 
   const stop = () => {
     setIsPlaying(false);
-    clearInterval(timer);
-  }
-
-  const format = () => {
-
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
   }
 
   return (
@@ -76,8 +111,8 @@ const ListenModal = ({
         
         <View style={{flex: 1,height: 10}}>
           <View style={{display: 'flex',flexDirection: 'row',justifyContent:'space-between'}}>
-            <Text style={styles.time}>{currentTime}</Text>
-            <Text style={styles.time}>{getSeconds(duration)}</Text>
+            <Text style={styles.time}>{`${format(currentTime).minutes}:${Number(format(currentTime).seconds) <= 9 ? '0' : ''}${format(currentTime).seconds}`}</Text>
+            <Text style={styles.time}>{duration}</Text>
           </View>
           <View style={styles.support}>
             <View style={{
@@ -100,7 +135,10 @@ const ListenModal = ({
             onPress={isPlaying ? stop : play}
           >
             <View style={styles.playButton}>
-              <AntDesign name="caretright" size={38} color="black" />
+              {isPlaying 
+                ? <AntDesign name="pause" size={38} color="black" />
+                : <AntDesign name="caretright" size={38} color="black" />
+              }
             </View>
           </TouchableOpacity>
           <TouchableOpacity>

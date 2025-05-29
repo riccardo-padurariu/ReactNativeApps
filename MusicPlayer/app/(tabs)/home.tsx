@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 50,
     paddingLeft: 30,
-    paddingRight: 30
+    paddingRight: 30,
   },
   greet: {
     display: 'flex',
