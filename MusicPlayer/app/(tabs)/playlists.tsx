@@ -1,17 +1,46 @@
 import Playlist from "@/components/Playlist";
+import PlaylistModal from "@/components/PlaylistModal";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Playlists = () => {
+
+  const [isCreating,setIsCreating] = React.useState(false);
+  const [playlistsList,setPlaylistsList] = React.useState([]);
+
+  const displayArr = playlistsList.map(item => (
+    <Playlist 
+      name={item.name}
+      numberSongs={item.numberSongs}
+      songs={item.songs}
+    />
+  ))
+
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.title}>Your playlists</Text>
-      <TouchableOpacity style={styles.createPlaylist}>
+      <TouchableOpacity 
+        style={styles.createPlaylist}
+        onPress={() => setIsCreating(true)}
+      >
         <Text style={styles.createPlaylistText}>
           Create a playlist
         </Text>
       </TouchableOpacity>
-      <Playlist />
+      <Playlist
+        name="Favourite songs"
+        numberSongs={0}
+        songs={[]}
+      />
+
+      {displayArr}
+
+      <PlaylistModal 
+        playlistsList={playlistsList}
+        setPlaylistsList={setPlaylistsList}
+        condition={isCreating}
+        setCondition={setIsCreating}
+      />
     </View>
   )
 }

@@ -2,6 +2,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React from "react";
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ListenModal from './ListenModal';
 import Music from './Music';
 
 const AlbumModal = ({
@@ -31,6 +32,9 @@ const AlbumModal = ({
     />
   )
 
+  const [isListening,setIsListening] = React.useState(false);
+  const [currentTime,setCurrentTime] = React.useState(0);
+
   return (
     <Modal
       animationType="slide"
@@ -50,7 +54,10 @@ const AlbumModal = ({
             </Text>
           </View>
           <View style={styles.endFlex}>
-            <TouchableOpacity style={styles.playButton}>
+            <TouchableOpacity 
+              style={styles.playButton}
+              onPress={() => setIsListening(true)}
+            >
               <FontAwesome name="play" size={24} color="black" />
             </TouchableOpacity>
           </View>
@@ -62,6 +69,17 @@ const AlbumModal = ({
           </ScrollView>
         </View>
       </View>
+
+      {songs[0] && <ListenModal 
+        condition={isListening}
+        setCondition={setIsListening}
+        songName={songs[0].name}
+        songAuthor={songs[0].author}
+        duration={songs[0].duration}
+        currentTime={currentTime}
+        setCurrentTime={setCurrentTime}
+      />}
+
     </Modal>
   )
 }
