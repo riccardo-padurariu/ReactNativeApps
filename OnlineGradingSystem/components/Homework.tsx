@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   discipline: {
     backgroundColor: '#867CF1',
-    maxWidth: 150,
+    maxWidth: 190,
     alignItems: 'center',
     borderTopLeftRadius: 15,
     padding: 5

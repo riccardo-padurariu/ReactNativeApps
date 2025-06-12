@@ -1,86 +1,50 @@
 import Notification from '@/components/Notification';
+import SidebarModal from '@/components/SidebarModal';
+import studentRecords from '@/NotificationData';
 import Feather from '@expo/vector-icons/Feather';
 import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Notifications = () => {
+
+  const [sidebarActive,setSidebarActive] = React.useState(false);
+  
+
+  const arr = studentRecords;
+  const displayArr = arr.map(item => (
+    <Notification 
+      name={item.name}
+      date={item.date}
+      time={item.time}
+      dueDate={item.dueDate}
+      dueTime={item.dueTime}
+      type={item.type}
+      grade={item.value}
+      discipline={item.discipline}
+    />
+  ))
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>Notifications</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setSidebarActive(true)}
+        >
           <Feather name="menu" size={24} color='white' />
         </TouchableOpacity>
       </View>
 
       <ScrollView>
         <View style={{padding: 15}}>
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='grade'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='absent'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='homework'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='homework'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='homework'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='homework'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='homework'
-          />
-          <Notification
-            name='Chris Evans'
-            grade={10}
-            discipline='Mathematics'
-            date={{day: '10',month: '06',year: '2025'}}
-            time={{hour: '11',minutes: '00'}}
-            type='homework'
-          />
+          {displayArr}
         </View>
       </ScrollView>
+
+      <SidebarModal 
+        condition={sidebarActive}
+        setCondition={setSidebarActive}
+      />
 
     </View>
   ) 

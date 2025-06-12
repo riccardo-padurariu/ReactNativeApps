@@ -24,23 +24,23 @@ export default function TabTwoScreen() {
       <View style={styles.infoFlex}>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Name</Text>
-          <Text style={styles.info}>Name</Text>
+          <Text style={styles.info}>Padurariu</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Surame</Text>
-          <Text style={styles.info}>Surname</Text>
+          <Text style={styles.info}>Riccardo</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Class</Text>
-          <Text style={styles.info}>Class</Text>
+          <Text style={styles.info}>XI A</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>School</Text>
-          <Text style={styles.info}>School</Text>
+          <Text style={styles.info}>Regina Maria Highschool</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Email</Text>
-          <Text style={styles.info}>Email</Text>
+          <Text style={styles.info}>padurariuriccardoioan@gmail.com</Text>
         </View>
       </View>
 
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     minWidth: 150,
-    maxWidth: 200,
+    maxWidth: 300,
     justifyContent: 'space-between'
   },
   label: {

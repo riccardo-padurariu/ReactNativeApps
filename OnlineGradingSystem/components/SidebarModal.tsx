@@ -1,6 +1,7 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import GradesModal from './SidebarModals/GradesModal';
 import HomeworkModal from './SidebarModals/HomeworkModal';
 import ScheduleModal from './SidebarModals/ScheduleModal';
 
@@ -29,7 +30,7 @@ const SidebarModal = ({
           >
             <AntDesign name="arrowleft" size={24} color="white" />
           </TouchableOpacity>
-          <Text style={styles.title}>Student name</Text>
+          <Text style={styles.title}>Padurariu Riccardo</Text>
         </View>
 
         <View style={styles.routeContainer}>
@@ -47,7 +48,9 @@ const SidebarModal = ({
               <Text style={styles.routeText}>Schedule</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setGradesActive(true)}
+          >
             <View style={styles.route}>
               <Text style={styles.routeText}>Grades</Text>
             </View>
@@ -106,6 +109,11 @@ const SidebarModal = ({
             ]
           ]}
         />
+
+        <GradesModal 
+          condition={gradeACtive}
+          setCondition={setGradesActive}
+        /> 
 
       </View>
     </Modal>

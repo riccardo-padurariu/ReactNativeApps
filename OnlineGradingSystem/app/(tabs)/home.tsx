@@ -1,15 +1,34 @@
 import RecentGradeAdded from '@/components/RecentGradeAdded';
+import SidebarModal from '@/components/SidebarModal';
+import { gradeRecords } from '@/RecentGradesData';
 import Feather from '@expo/vector-icons/Feather';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
 export default function HomeScreen() {
+
+  const [sidebarActive,setSidebarActive] = React.useState(false);
+  
+
+  const arr = gradeRecords;
+  const displayArr = arr.map(item => (
+    <RecentGradeAdded 
+      name={item.name}
+      discipline={item.discipline}
+      date={item.date}
+      time={item.time}
+      grade={item.value}
+    />
+  ))
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>Welcome back student!</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setSidebarActive(true)}
+        >
           <Feather name="menu" size={24} color='white' />
         </TouchableOpacity>
       </View>
@@ -18,82 +37,16 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>Recent grades added</Text>
 
         <ScrollView>
-          <View>
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-            <RecentGradeAdded
-              name='Chris Evans'
-              grade={10}
-              discipline='Mathematics'
-              date={{day: '10',month: '06',year: '2025'}}
-              time={{hour: '11',minutes: '00'}}
-            />
-          </View>
+          {displayArr}
         </ScrollView>
 
 
       </View>
+
+      <SidebarModal 
+        condition={sidebarActive}
+        setCondition={setSidebarActive}
+      />
 
     </View>
   );
