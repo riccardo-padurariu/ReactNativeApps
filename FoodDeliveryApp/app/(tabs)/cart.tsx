@@ -1,17 +1,43 @@
+import CartItem from '@/components/CartItem';
 import { router } from 'expo-router';
-import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { DataContext } from '../DataProvider';
 
 export default function TabTwoScreen() {
   
-  const [cartList,setCartList] = React.useState([]);
+  const { cartList, setCartList } = useContext(DataContext);
   
   return (
     <View style={styles.mainContainer}>
       {cartList.length 
       ?
-        <View>
+        <View style={styles.mainCartContainer}>
+          <View>
+            <Text style={styles.title}>Cart</Text>
+            <ScrollView>
+              {cartList.map((item: any) => (
+                <CartItem
+                  name={item.name}
+                  price={item.price}
+                  quantity={item.quantity}
+                  location={item.location}
+                  id={item.id}
+                  index={item.index}
+                />
+              ))}
+            </ScrollView>
+          </View>
+          <View>
+            <View>
+              <Text>
+                salut
+              </Text>
+            </View>
+            <TouchableOpacity>
 
+            </TouchableOpacity>
+          </View>
         </View>
       : 
         <View style={{alignItems: 'center',padding: 50,justifyContent: 'space-between',flex: 1}}>
@@ -38,7 +64,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'ABeeZee',
-    fontSize: 20
+    fontSize: 20,
+    marginBottom: 30
   },
   button: {
     backgroundColor: '#FFE311',
@@ -51,5 +78,13 @@ const styles = StyleSheet.create({
     fontFamily: 'ABeeZee',
     fontSize: 20,
     color: 'white'
+  },
+  mainCartContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingTop: 50,
+    paddingBottom: 50,
+    paddingLeft: 20,
+    paddingRight: 20
   }
 });

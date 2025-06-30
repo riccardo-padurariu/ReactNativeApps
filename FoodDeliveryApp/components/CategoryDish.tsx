@@ -1,6 +1,7 @@
+import { DataContext } from '@/app/DataProvider';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import React from "react";
+import React, { useContext } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 
@@ -15,6 +16,23 @@ const CategoryDish = ({
   contact: string,
   price: number
 }) => {
+
+  const {cartList,setCartList} = useContext(DataContext);
+
+  const addToCart = () => {
+    setCartList((prev: any) => [
+      ...prev,
+      {
+        name: name,
+        price: price,
+        quantity: 1,
+        id: 'id3',
+        location: location,
+        index: 3
+      }
+    ])
+  }
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.infoContainer}>
@@ -28,7 +46,9 @@ const CategoryDish = ({
           <Text style={styles.infoText}>{contact}</Text>
         </View>
         <View style={styles.flexButton}>
-          <TouchableOpacity style={styles.seeMenuButton}>
+          <TouchableOpacity style={styles.seeMenuButton}
+            onPress={addToCart}
+          >
             <Text style={styles.menuText}>See on menu</Text>
           </TouchableOpacity>
           <Text style={styles.infoText}>{price}$</Text>
