@@ -18,25 +18,7 @@ export type DataContextType = {
 
 const DataProvider = ({children} : {children: React.ReactNode}) => {
   
-  const [cartList,setCartList] = React.useState<CartItem[]>([
-    {
-      name: 'Pizza Margherita',
-      price: 39,
-      quantity: 1,
-      id: 'id1',
-      location: 'Complex Commando',
-      index: 1
-    },
-    {
-      name: 'Pizza Margherita',
-      price: 39,
-      quantity: 1,
-      id: 'id2',
-      location: 'Complex Commando',
-      index: 2
-    },
-    
-  ]);
+  const [cartList,setCartList] = React.useState<CartItem[]>([]);
 
   return (
     <DataContext.Provider value={{cartList, setCartList}}>

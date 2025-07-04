@@ -3,35 +3,30 @@ import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import React, { useContext } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Dish from './Dish';
 
 
 const CategoryDish = ({
   name,
   location,
   contact,
-  price
+  price,
+  id,
+  ingredients,
+  description
 } : {
   name: string,
   location: string,
   contact: string,
-  price: number
+  price: number,
+  id: string,
+  ingredients: string[],
+  description: string
 }) => {
 
   const {cartList,setCartList} = useContext(DataContext);
 
-  const addToCart = () => {
-    setCartList((prev: any) => [
-      ...prev,
-      {
-        name: name,
-        price: price,
-        quantity: 1,
-        id: 'id3',
-        location: location,
-        index: 3
-      }
-    ])
-  }
+  const [isVisualizing,setIsVisualizing] = React.useState(false);
 
   return (
     <View style={styles.mainContainer}>
@@ -47,7 +42,7 @@ const CategoryDish = ({
         </View>
         <View style={styles.flexButton}>
           <TouchableOpacity style={styles.seeMenuButton}
-            onPress={addToCart}
+            onPress={() => setIsVisualizing(true)}
           >
             <Text style={styles.menuText}>See on menu</Text>
           </TouchableOpacity>
@@ -56,10 +51,19 @@ const CategoryDish = ({
       </View>
       <View style={styles.imageContainer}>
         <Image 
-          style={{width: 155,height: 155,borderBottomRightRadius: 20,borderTopRightRadius: 20}}
+          style={{width: 155,height: '100%',borderBottomRightRadius: 20,borderTopRightRadius: 20}}
           source={require('../assets/images/pizza-img.png')}
         />
       </View>
+      <Dish 
+        condition={isVisualizing}
+        setCondition={setIsVisualizing}
+        name={name}
+        location={location}
+        price={price}
+        ingredients={ingredients}
+        description={description}
+      />
     </View>
   )
 }
@@ -73,7 +77,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 20,
     justifyContent: 'space-between',
-    marginBottom: 15
+    marginBottom: 15,
+    maxHeight: 160
   },
   imageContainer: {
     

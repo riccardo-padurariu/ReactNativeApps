@@ -49,7 +49,7 @@ const CartItem = ({
             >
               <AntDesign name="minus" size={24} color="black" />
             </TouchableOpacity>
-            <Text style={styles.price}>{cartList[index-1].quantity}</Text>
+            <Text style={styles.price}>{quantity}</Text>
             <TouchableOpacity
               onPress={() => handle(quantity < 10 ? 1 : 0)}
             >
@@ -62,7 +62,7 @@ const CartItem = ({
       <View style={styles.imageContainer}>
         <Image 
           source={require('../assets/images/salad-img.png')}
-          style={{width: 150,height: 140,borderTopRightRadius: 15,borderBottomRightRadius: 15}}
+          style={{width: 150,height: 150,borderTopRightRadius: 15,borderBottomRightRadius: 15}}
         />
       </View>
     </View>
@@ -85,7 +85,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'ABeeZee',
-    fontSize: 18
+    fontSize: 18,
+    width: 150
   },
   locationContainer: {
     display: 'flex',

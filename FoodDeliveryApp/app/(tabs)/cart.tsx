@@ -7,7 +7,16 @@ import { DataContext } from '../DataProvider';
 export default function TabTwoScreen() {
   
   const { cartList, setCartList } = useContext(DataContext);
-  
+
+
+  const getTotalPrice = () => {
+    let sum = 0;
+    cartList.forEach((element: any) => {
+      sum += element.price*element.quantity;
+    });
+    return sum;
+  }
+
   return (
     <View style={styles.mainContainer}>
       {cartList.length 
@@ -28,14 +37,27 @@ export default function TabTwoScreen() {
               ))}
             </ScrollView>
           </View>
-          <View>
-            <View>
-              <Text>
-                salut
-              </Text>
+          <View style={styles.checkOutContainer}>
+            <View style={styles.checkOutInfo}>
+              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                <Text style={styles.checkText}>Dish price:</Text>
+                <Text style={styles.checkText}>{getTotalPrice()}$</Text>
+              </View>
+              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                <Text style={styles.checkText}>Taxes:</Text>
+                <Text style={styles.checkText}>{getTotalPrice() < 200 ? 10 : 5}$</Text>
+              </View>
+              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                <Text style={styles.checkText}>Delivery:</Text>
+                <Text style={styles.checkText}> {getTotalPrice() < 200 ? 20 : 10}$</Text>
+              </View>
+              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                <Text style={styles.checkText}>Total:</Text>
+                <Text style={styles.checkText}>{getTotalPrice() < 200 ? getTotalPrice()+30 : getTotalPrice()+15}$</Text>
+              </View>
             </View>
-            <TouchableOpacity>
-
+            <TouchableOpacity style={styles.checkOutButton}>
+              <Text style={styles.buttonText}>Check-out</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -85,6 +107,33 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 50,
     paddingLeft: 20,
-    paddingRight: 20
-  }
+    paddingRight: 20,
+    marginBottom: 250,
+  },
+  checkOutContainer: {
+    paddingTop: 20,
+    position: 'fixed'
+  },
+  checkOutInfo: {
+    backgroundColor: '#EFEDED',
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 20,
+    rowGap: 5
+  },
+  checkOutButton: {
+    backgroundColor: '#FFE311',
+    padding: 10,
+    alignItems: 'center',
+    borderRadius: 10
+  },
+  checkText: {
+    fontFamily: 'ABeeZee',
+    fontSize: 16,
+  },
 });
+
+
+export const unstable_settings  = {
+  unmountOnBlur: false,
+};

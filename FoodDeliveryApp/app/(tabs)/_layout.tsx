@@ -3,14 +3,12 @@ import Feather from '@expo/vector-icons/Feather';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
-import DataProvider from '../DataProvider';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <DataProvider>
-      <Tabs
+      <Tabs 
         screenOptions={{
           tabBarActiveTintColor: 'white',
           headerShown: false,
@@ -20,7 +18,7 @@ export default function TabLayout() {
               paddingTop: 10,
               height: 95
             },
-          }),
+          })
         }}>
         <Tabs.Screen
           name="home"
@@ -62,6 +60,5 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </DataProvider>
   );
 }

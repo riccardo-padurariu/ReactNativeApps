@@ -1,10 +1,15 @@
 import CategoryDish from '@/components/CategoryDish';
 import RestaurantWidget from '@/components/RestaurantWidget';
+import { dishesList } from '@/dishData';
+import { restaurantsList } from '@/restaurantData';
 import Feather from '@expo/vector-icons/Feather';
 import React from 'react';
 import { ImageBackground, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
+  const displArr = [];
+  for(let i=0;i<10;i++)
+      displArr[i] = restaurantsList[i];
 
   const [categories,setCategories] = React.useState({
     pizza: true,
@@ -13,6 +18,13 @@ export default function HomeScreen() {
     fastFood: false,
     sushi: false
   })
+
+  let arr = [];
+
+  if(Array.isArray(dishesList))
+    arr = dishesList.filter((item:any) => item.type === 'pizza');
+
+  const [displayArr,setDisplayArr] = React.useState(arr);
 
   const handleCategory = (category: string) => {
     if(category == 'pizza'){
@@ -31,7 +43,7 @@ export default function HomeScreen() {
         fastFood: false,
         sushi: false
       });
-    } else if(category == 'hamburger'){
+    } else if(category == 'burger'){
       setCategories({
         pizza: false,
         pasta: false,
@@ -39,7 +51,7 @@ export default function HomeScreen() {
         fastFood: false,
         sushi: false
       });
-    } else if(category == 'fast-food'){
+    } else if(category == 'grill'){
       setCategories({
         pizza: false,
         pasta: false,
@@ -56,6 +68,8 @@ export default function HomeScreen() {
         sushi: true
       });
     }
+    const arr = dishesList.filter((item: any) => item.type === category );
+    setDisplayArr(arr);
   }
 
   return (
@@ -81,20 +95,17 @@ export default function HomeScreen() {
       <View style={styles.infoMainContainer}>
         <Text style={styles.subtitle}>Restaurants around you</Text>   
         <ScrollView contentContainerStyle={{marginBottom: 20,marginTop: 20,display: 'flex',flexDirection: 'row',alignItems: 'center'}} horizontal={true}>
-          <RestaurantWidget 
-            name='Complex Commando'
-            adress='Strada Stefan Cel Mare 37 Dorohoi, Botosani'
-            contact=' 0755 024 992'
-            imageSource='../assets/images/cover-photo.png'
-          />
-          <RestaurantWidget 
-            name='Complex Commando'
-            adress='Strada Stefan Cel Mare 37 Dorohoi, Botosani'
-            contact=' 0755 024 992'
-            imageSource='../assets/images/cover-photo.png'
-          />
+          {displArr.map((item: any) => (
+            <RestaurantWidget 
+              name={item.name}
+              dishes={item.dishes}
+              adress={item.location}
+              contact={item.contact}
+              id={item.id}
+            />
+          ))}
         </ScrollView> 
-        <View style={{marginBottom: 320,height:'48%'}}>
+        <View style={{marginBottom: 320,height:'51%'}}>
           <Text style={styles.subtitle}>Choose your food category</Text>
           <View style={styles.foodCategoriesContainer}>
             <TouchableOpacity
@@ -108,14 +119,14 @@ export default function HomeScreen() {
               <Text style={categories.pasta ? styles.categoryTextSelected : styles.categoryText}>Pasta</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleCategory('hamburger')}
+              onPress={() => handleCategory('burger')}
             >
-              <Text style={categories.hamburger ? styles.categoryTextSelected : styles.categoryText}>Hamburger</Text>
+              <Text style={categories.hamburger ? styles.categoryTextSelected : styles.categoryText}>Burger</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleCategory('fast-food')}
+              onPress={() => handleCategory('grill')}
             >
-              <Text style={categories.fastFood ? styles.categoryTextSelected : styles.categoryText}>Fast Food</Text>
+              <Text style={categories.fastFood ? styles.categoryTextSelected : styles.categoryText}>Grill</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleCategory('sushi')}
@@ -124,30 +135,26 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={{marginTop: 20,display: 'flex',flexDirection: 'column'}}>
-            <CategoryDish
-              name='Pizza Margherita'
-              location='Complex Commando'
-              contact='0755 024 992'
-              price={34.99}
-            />
-            <CategoryDish
-              name='Pizza Margherita'
-              location='Complex Commando'
-              contact='0755 024 992'
-              price={34.99}
-            />
-            <CategoryDish
-              name='Pizza Margherita'
-              location='Complex Commando'
-              contact='0755 024 992'
-              price={34.99}
-            />
-            <CategoryDish
-              name=''
-              location=''
-              contact=''
-              price={NaN}
-            />
+            {displayArr.map((item: any) => (
+              <CategoryDish 
+                name={item.name}
+                price={item.price}
+                id={item.id}
+                location={item.location}
+                contact='0758180243'
+                ingredients={item.ingredients}
+                description={item.description}
+              />
+            ))}
+            <CategoryDish 
+                name=''
+                price={12}
+                id=''
+                location=''
+                contact='0758180243'
+                ingredients={[]}
+                description=''
+              />
           </ScrollView>
         </View>
       </View>
@@ -226,3 +233,7 @@ const styles = StyleSheet.create({
   }
 
 });
+
+export const unstable_settings  = {
+  unmountOnBlur: false,
+};

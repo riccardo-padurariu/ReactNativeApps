@@ -77,4 +77,8 @@ const styles = StyleSheet.create({
   }
 });
 
+export const unstable_settings  = {
+  unmountOnBlur: false,
+};
+
 export default Profile;

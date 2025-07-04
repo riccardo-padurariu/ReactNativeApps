@@ -1,5 +1,6 @@
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { router } from 'expo-router';
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -7,12 +8,16 @@ const RestaurantWidget = ({
   name,
   adress,
   contact,
-  imageSource
+  imageSource,
+  id,
+  dishes
 }: {
   name: string,
   adress: string,
   contact: string,
-  imageSource: string
+  imageSource: string,
+  id: string,
+  dishes: any[]
 }) => {
 
   /*
@@ -22,7 +27,7 @@ const RestaurantWidget = ({
       style={{flex: 1,height: "100%",borderBottomRightRadius: 15,borderTopRightRadius: 15}}
     />
   */
-  
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.infoContainer}>
@@ -36,7 +41,10 @@ const RestaurantWidget = ({
           <Text style={styles.infoText}>{contact}</Text>
         </View>
         <View style={{width: '100%'}}>
-          <TouchableOpacity style={styles.seeMenuButton}>
+          <TouchableOpacity 
+            style={styles.seeMenuButton}
+            onPress={() => router.push({pathname: `/${id}`, params: {id,name,adress,contact,dishes: JSON.stringify(dishes)}})}
+          >
             <Text style={styles.buttonText}>See menu</Text>
           </TouchableOpacity>
         </View>
@@ -45,7 +53,7 @@ const RestaurantWidget = ({
         <Image
           source={require('../assets/images/cover-photo.png')}
           resizeMode='cover'
-          style={{width: 180,height: 186,borderBottomRightRadius: 15,borderTopRightRadius: 15}}
+          style={{width: 180,height: 160,borderBottomRightRadius: 15,borderTopRightRadius: 15}}
         />
       </View>
     </View>
@@ -60,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EFEDED',
     maxWidth: 360,
     borderRadius: 15,
-    marginRight: 65
+    marginRight: 25
   },
   infoContainer: {
     display: 'flex',
