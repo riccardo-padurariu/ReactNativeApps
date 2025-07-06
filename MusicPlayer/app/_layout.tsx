@@ -1,6 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
+import { AuthProvider } from '../Authentification/AuthContext';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -11,13 +12,17 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
   return (
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+      <AuthProvider>
+        <Stack>
+          <Stack.Screen name="login" options={{headerShown: false}}/>
+          <Stack.Screen name="register" options={{headerShown: false}}/>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="profile" options={{headerShown: false}}/>
+        </Stack>
+      </AuthProvider>
   );
 }

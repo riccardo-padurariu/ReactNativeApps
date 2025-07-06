@@ -1,20 +1,27 @@
+import { useAuth } from '@/Authentification/AuthContext';
 import LatestsHits from '@/components/LatestsHits';
 import Scroll from '@/components/Scroll';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
 
   const [albumOpen,setAlbumOpen] = React.useState(false);
+  const { currentUser } = useAuth();
+
+  console.log(currentUser);
 
   return (
     <ScrollView style={styles.mainContainer}>
       <View style={styles.greet}>
         <Text style={styles.title}>
-          Hello User!
+          Hello {currentUser.displayName}
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push('/profile')}
+        >
           <FontAwesome name="user-circle-o" size={30} color="#888888" />
         </TouchableOpacity>
       </View>
