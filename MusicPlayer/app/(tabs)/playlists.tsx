@@ -1,5 +1,8 @@
+import { useAuth } from "@/Authentification/AuthContext";
+import { app } from "@/Authentification/Firebase";
 import Playlist from "@/components/Playlist";
 import PlaylistModal from "@/components/PlaylistModal";
+import { getDatabase, onValue, ref } from "firebase/database";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -7,8 +10,35 @@ const Playlists = () => {
 
   const [isCreating,setIsCreating] = React.useState(false);
   const [playlistsList,setPlaylistsList] = React.useState([]);
+  const { currentUser } = useAuth();
 
-  const displayArr = playlistsList.map(item => (
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    const db = getDatabase(app);
+    const userTasksRef = ref(db, `users/${currentUser.uid}/playlists`);
+
+    const unsubscribe = onValue(userTasksRef, (snapshot) => {
+      if(snapshot.exists()){
+        const playlistsData = snapshot.val();
+
+        const playlistsArray = Object.entries(playlistsData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }))
+
+        setPlaylistsList(playlistsArray);
+      }else{
+        setPlaylistsList([]);
+      }
+    }, (error: any) => {
+      console.log('Error fetching tasks: ', error);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  const displayArr = playlistsList.map((item: any) => (
     <Playlist 
       name={item.name}
       numberSongs={item.numberSongs}

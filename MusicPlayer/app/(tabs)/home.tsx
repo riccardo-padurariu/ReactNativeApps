@@ -20,7 +20,7 @@ export default function HomeScreen() {
           Hello {currentUser.displayName}
         </Text>
         <TouchableOpacity
-          onPress={() => router.push('/profile')}
+          onPress={() => router.replace('/profile')}
         >
           <FontAwesome name="user-circle-o" size={30} color="#888888" />
         </TouchableOpacity>

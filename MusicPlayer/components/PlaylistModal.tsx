@@ -1,5 +1,8 @@
+import { useAuth } from '@/Authentification/AuthContext';
+import { app } from '@/Authentification/Firebase';
 import { songs } from '@/data/songs';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { getDatabase, push, ref } from 'firebase/database';
 import React from "react";
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import MusicPlaylist from './MusicPlaylist';
@@ -18,6 +21,7 @@ const PlaylistModal = ({
 
   const [playlist,setPlaylist] = React.useState([]);
   const [name,setName] = React.useState('');
+  const { currentUser } = useAuth();
 
   const arr = songs;
   const displayArr = arr.map((item) => (
@@ -30,15 +34,25 @@ const PlaylistModal = ({
     />
   )) 
 
+  const fetchData = async () => {
+    try {
+    const db = getDatabase(app);
+    const userRef = ref(db, `users/${currentUser.uid}/playlists`);
+    const newPlaylist = {
+      songs: playlist,
+      name: name,
+      numberSongs: playlist.length
+    };
+
+    await push(userRef, newPlaylist);
+    console.log("Playlist pushed successfully");
+  } catch (error) {
+    console.error("Error pushing playlist:", error);
+  }
+  }
+
   const create = () => {
-    setPlaylistsList(prev => [
-      ...prev,
-      {
-        songs: playlist,
-        name: name,
-        numberSongs: playlist.length
-      }
-    ])
+    fetchData();
     setCondition(false);
     setName('');
     setPlaylist([]);
