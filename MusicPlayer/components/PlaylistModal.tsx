@@ -2,7 +2,7 @@ import { useAuth } from '@/Authentification/AuthContext';
 import { app } from '@/Authentification/Firebase';
 import { songs } from '@/data/songs';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { getDatabase, push, ref } from 'firebase/database';
+import { getDatabase, push, ref, remove } from 'firebase/database';
 import React from "react";
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import MusicPlaylist from './MusicPlaylist';
@@ -11,17 +11,35 @@ const PlaylistModal = ({
   condition,
   setCondition,
   playlistsList,
-  setPlaylistsList
+  setPlaylistsList,
+  isEditing,
+  activeSongs,
+  id,
+  pName
 }: {
   condition: boolean,
   setCondition: any,
   playlistsList: any[],
-  setPlaylistsList: any
+  setPlaylistsList: any,
+  isEditing: boolean,
+  activeSongs: any[],
+  id: string,
+  pName: string
 }) => {
 
-  const [playlist,setPlaylist] = React.useState([]);
-  const [name,setName] = React.useState('');
+  const [playlist,setPlaylist] = React.useState(activeSongs ? activeSongs : []);
+  const [name,setName] = React.useState(pName ? pName : '');
   const { currentUser } = useAuth();
+
+  const exists = (id: string) => {
+    let found = false;
+    if(activeSongs){
+      activeSongs.forEach((item: any) => {
+        if(`${item.author}_${item.name}_${item.duration}` === id) found = true;
+      })
+    }
+    return found;
+  }
 
   const arr = songs;
   const displayArr = arr.map((item) => (
@@ -31,28 +49,41 @@ const PlaylistModal = ({
       songAuthor={item.author}
       songName={item.name}
       duration={item.duration}
+      id={`${item.author}_${item.name}_${item.duration}`}
+      active={exists(`${item.author}_${item.name}_${item.duration}`)}
     />
   )) 
 
   const fetchData = async () => {
     try {
-    const db = getDatabase(app);
-    const userRef = ref(db, `users/${currentUser.uid}/playlists`);
-    const newPlaylist = {
-      songs: playlist,
-      name: name,
-      numberSongs: playlist.length
-    };
+      const db = getDatabase(app);
+      const userRef = ref(db, `users/${currentUser.uid}/playlists`);
+      const newPlaylist = {
+        songs: playlist,
+        name: name,
+        numberSongs: playlist.length
+      };
 
-    await push(userRef, newPlaylist);
-    console.log("Playlist pushed successfully");
-  } catch (error) {
-    console.error("Error pushing playlist:", error);
+      await push(userRef, newPlaylist);
+      console.log("Playlist pushed successfully");
+    } catch (error) {
+      console.error("Error pushing playlist:", error);
+    }
   }
+
+  const deletePlaylist = async (pid: string) => {
+    const db = getDatabase(app);
+    const userRef = ref(db, `users/${currentUser.uid}/playlists/${pid}`);
+    await remove(userRef);
   }
 
   const create = () => {
-    fetchData();
+  
+    if(isEditing){
+      deletePlaylist(id).then(fetchData);
+    }else{
+      fetchData();
+    }
     setCondition(false);
     setName('');
     setPlaylist([]);
@@ -72,7 +103,7 @@ const PlaylistModal = ({
             <AntDesign name="down" size={24} color="white" />
           </TouchableOpacity>
           <View style={{display: 'flex',flexDirection: 'column',alignItems: 'flex-start'}} >
-            <Text style={styles.title}>Create your playlist</Text>
+            <Text style={styles.title}>{isEditing ? 'Edit' : 'Create'} your playlist</Text>
             <TextInput defaultValue={name} onChangeText={text => setName(text)} style={styles.input} placeholder='Enter playlist name' />
           </View>
         </View>
@@ -86,7 +117,7 @@ const PlaylistModal = ({
           style={styles.createButton}
           onPress={create}
         >
-          <Text style={styles.createButtonText}>Create</Text>
+          <Text style={styles.createButtonText}>{isEditing ? 'Edit': 'Create'}</Text>
         </TouchableOpacity>
       </View>
     </Modal>

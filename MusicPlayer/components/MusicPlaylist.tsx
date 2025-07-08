@@ -10,21 +10,25 @@ const MusicPlaylist = ({
   songAuthor,
   duration,
   setPlaylist,
-  playlist
+  playlist,
+  id,
+  active
 } : {
   songName: string,
   songAuthor: string,
   duration: string,
   setPlaylist: any,
-  playlist: any[]
+  playlist: any[],
+  id: string,
+  active: boolean
 }) => {
 
-  const [isSelected,setIsSelected] = React.useState(false);
+  const [isSelected,setIsSelected] = React.useState(active);
 
   const toggleToPlaylist = () => {
     setIsSelected(prev => !prev);
     if(isSelected){
-      const newArr = playlist.filter(item => item.songName !== songName);
+      const newArr = playlist.filter(item => item.id !== id);
       setPlaylist(newArr);
     }else{
       setPlaylist(prevArr => [
@@ -32,7 +36,8 @@ const MusicPlaylist = ({
         {
           name: songName,
           author: songAuthor,
-          duration: duration
+          duration: duration,
+          id: id
         }
       ])
     }

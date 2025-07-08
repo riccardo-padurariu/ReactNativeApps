@@ -43,6 +43,7 @@ const Playlists = () => {
       name={item.name}
       numberSongs={item.numberSongs}
       songs={item.songs}
+      id={item.firebaseKey}
     />
   ))
 
