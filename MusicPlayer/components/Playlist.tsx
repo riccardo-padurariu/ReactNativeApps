@@ -14,12 +14,14 @@ const Playlist = ({
   name,
   numberSongs,
   songs,
-  id
+  id,
+  type
 } : {
   name: string,
   numberSongs: number,
   songs: any[],
-  id: string
+  id: string,
+  type: string
 }) => {
 
   const [isOpen,setIsOpen] = React.useState(false);
@@ -41,7 +43,7 @@ const Playlist = ({
           <View style={{marginLeft: 20,flex:1}}>
             <View style={{display: 'flex',flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between'}}>
               <Text style={styles.title}>{name}</Text>
-              <View style={{display: 'flex',flexDirection: 'row', alignItems: 'center'}}>
+              {type != 'fav' && <View style={{display: 'flex',flexDirection: 'row', alignItems: 'center'}}>
                 <TouchableOpacity
                   onPress={() => deletePlaylist(id)}
                 >
@@ -52,7 +54,7 @@ const Playlist = ({
                 >
                   <Feather name="more-vertical" size={24} color="#888888" />
                 </TouchableOpacity>
-              </View>
+              </View>}
             </View>
             <Text style={styles.subtitle}>{`${numberSongs} songs`}</Text>
           </View>

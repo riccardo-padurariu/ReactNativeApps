@@ -4,16 +4,19 @@ import Playlist from "@/components/Playlist";
 import PlaylistModal from "@/components/PlaylistModal";
 import { getDatabase, onValue, ref } from "firebase/database";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Playlists = () => {
 
   const [isCreating,setIsCreating] = React.useState(false);
   const [playlistsList,setPlaylistsList] = React.useState([]);
   const { currentUser } = useAuth();
+  const [loading,setLoading] = React.useState(false);
+  const [favs,setFavs] = React.useState([]);
 
   React.useEffect(() => {
     if(!currentUser) return;
+    setLoading(true);
 
     const db = getDatabase(app);
     const userTasksRef = ref(db, `users/${currentUser.uid}/playlists`);
@@ -28,15 +31,45 @@ const Playlists = () => {
         }))
 
         setPlaylistsList(playlistsArray);
+        setLoading(false);
       }else{
         setPlaylistsList([]);
       }
     }, (error: any) => {
-      console.log('Error fetching tasks: ', error);
+      console.log('Error fetching playlists: ', error);
     });
 
     return () => unsubscribe();
   }, [currentUser]);
+
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    const db = getDatabase(app);
+    const userTasksRef = ref(db, `users/${currentUser.uid}/favourites`);
+
+    const unsubscribe = onValue(userTasksRef, (snapshot) => {
+      if(snapshot.exists()){
+        const playlistsData = snapshot.val();
+
+        const favsArr = Object.entries(playlistsData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }))
+
+        setFavs(favsArr);
+      }else{
+        setFavs([]);
+      }
+    }, (error: any) => {
+      console.log('Error fetching playlists: ', error);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  console.log("favs: ");
+  console.log(favs);
 
   const displayArr = playlistsList.map((item: any) => (
     <Playlist 
@@ -58,13 +91,16 @@ const Playlists = () => {
           Create a playlist
         </Text>
       </TouchableOpacity>
-      <Playlist
+      {Array.isArray(favs) && <Playlist
         name="Favourite songs"
-        numberSongs={0}
-        songs={[]}
-      />
+        numberSongs={favs.length}
+        songs={favs}
+        type="fav"
+      />}
 
-      {displayArr}
+      {loading
+      ? <ActivityIndicator size={'large'} color={'white'} /> 
+      : displayArr}
 
       <PlaylistModal 
         playlistsList={playlistsList}

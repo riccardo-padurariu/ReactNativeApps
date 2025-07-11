@@ -1,8 +1,10 @@
+import { useAuth } from '@/Authentification/AuthContext';
+import { app, db } from '@/Authentification/Firebase';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
+import { getDatabase, onValue, push, ref, remove } from 'firebase/database';
 import React, { useEffect } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 
 const ListenModal = ({
   condition,
@@ -11,7 +13,8 @@ const ListenModal = ({
   songAuthor,
   duration,
   currentTime,
-  setCurrentTime
+  setCurrentTime,
+  
 } : {
   condition: boolean,
   setCondition: any,
@@ -19,11 +22,49 @@ const ListenModal = ({
   songAuthor: string,
   duration: string,
   currentTime: number,
-  setCurrentTime: any
+  setCurrentTime: any,
 }) => {
 
   const [isPlaying, setIsPlaying] = React.useState(false);
   const timerRef = React.useRef<ReturnType<typeof setInterval>>();
+  const [isFav,setIsFav] = React.useState(false);
+  const [favSongs,setFavSongs] = React.useState([]);
+  const { currentUser } = useAuth();
+
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    const db = getDatabase(app);
+    const userTasksRef = ref(db, `users/${currentUser.uid}/favourites`);
+
+    const unsubscribe = onValue(userTasksRef, (snapshot) => {
+      if(snapshot.exists()){
+        const playlistsData = snapshot.val();
+
+        const playlistsArray = Object.entries(playlistsData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }))
+
+        setFavSongs(playlistsArray);
+      }else{
+        setFavSongs([]);
+      }
+    }, (error: any) => {
+      console.log('Error fetching tasks: ', error);
+    });
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  useEffect(() => {
+    if(Array.isArray(favSongs)){
+      let exists = false;
+      favSongs.forEach((item: any) => {
+        if(item.id == `${songName}_${songAuthor}_${duration}`) exists = true;
+      })
+      setIsFav(exists);
+    }
+  },[favSongs]);
 
   useEffect(() => {
     return () => {
@@ -90,6 +131,42 @@ const ListenModal = ({
     }
   }
 
+  const fetchData = async () => {
+      try {
+        const db = getDatabase(app);
+        const userRef = ref(db, `users/${currentUser.uid}/favourites`);
+        const newPlaylist = {
+          name: songName,
+          author: songAuthor,
+          duration: duration,
+          id: `${songName}_${songAuthor}_${duration}`
+        };
+  
+        await push(userRef, newPlaylist);
+        console.log("Playlist pushed successfully");
+      } catch (error) {
+        console.error("Error pushing playlist:", error);
+      }
+    }
+
+  const deleteFromDb = async () => {
+    let delete_id = '';
+    favSongs.forEach((item: any) => {
+      if(item.id == `${songName}_${songAuthor}_${duration}`) delete_id = item.firebaseKey;
+    });
+    const deleteRef = ref(db,`users/${currentUser.uid}/favourites/${delete_id}`);
+    await remove(deleteRef);
+  }
+
+  const handleFav = async() => {
+    if(isFav){
+      deleteFromDb();
+    }else{
+      fetchData();
+      setIsFav(true);
+    }
+  }
+
   return (
     <Modal 
       visible={condition}
@@ -105,7 +182,14 @@ const ListenModal = ({
         </View>
 
         <View style={{marginTop: 20,marginBottom: 3}}>
-          <Text style={styles.musicName}>{songName}</Text>
+          <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between'}}>
+            <Text style={styles.musicName}>{songName}</Text>
+            <TouchableOpacity
+              onPress={handleFav}
+            >
+              {isFav ? <Feather name="check-circle" size={24} color="#008A0B" /> : <AntDesign name="minuscircleo" size={24} color="#888888" />}
+            </TouchableOpacity>
+          </View>
           <Text style={styles.musicAuthor}>{songAuthor}</Text>
         </View>
         

@@ -1,4 +1,4 @@
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ListenModal from './ListenModal';
@@ -26,8 +26,9 @@ const Music = ({
       currentTime={currentTime}
       setCurrentTime={setCurrentTime}
     />
-  */
 
+    <Feather name="music" size={30} color="#008A0B" />
+  */
   return (
     <View>
       <TouchableOpacity onPress={() => setIsListening(true)}>
