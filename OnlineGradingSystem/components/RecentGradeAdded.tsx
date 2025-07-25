@@ -1,3 +1,4 @@
+import { useAuth } from "@/Authentification/AuthContext";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -6,14 +7,19 @@ const RecentGradeAdded = ({
   discipline,
   date,
   time,
-  grade
+  grade,
+  teacherName
 } : {
   name: string,
   discipline: string,
   date: any,
   time: any,
-  grade: number
+  grade: number,
+  teacherName: string
 }) => {
+
+  const { currentUser } = useAuth();
+
   return (
       <TouchableOpacity>
         <View style={styles.mainContainer}>
@@ -23,11 +29,11 @@ const RecentGradeAdded = ({
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.mainText}>
-              Grade {grade} by professor {name}
+              {currentUser.displayName[0] === 'T' ? `You added the grade ${grade} to the student ${name}` :`Grade ${grade} by professor ${teacherName}`}
             </Text>
-            <Text numberOfLines={2} style={styles.discipline}>
+            {currentUser.displayName[0] !== 'T' && <Text numberOfLines={2} style={styles.discipline}>
               Discipline: {discipline}
-            </Text>
+            </Text>}
           </View>
         </View>
       </TouchableOpacity>
@@ -65,6 +71,7 @@ const styles = StyleSheet.create({
   },
   mainText: {
     flexWrap: 'wrap',
+    width: 250
   },
   discipline: {
     color: '#9C9C9C'

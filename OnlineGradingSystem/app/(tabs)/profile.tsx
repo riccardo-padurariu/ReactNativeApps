@@ -1,5 +1,8 @@
+import { useAuth } from '@/Authentification/AuthContext';
+import { auth } from '@/Authentification/Firebase';
 import SidebarModal from '@/components/SidebarModal';
 import Feather from '@expo/vector-icons/Feather';
+import { router } from 'expo-router';
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -7,6 +10,30 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export default function TabTwoScreen() {
 
   const [sidebarActive,setSidebarActive] = React.useState(false);
+  const { currentUser } = useAuth();
+  const [status,setStatus] = React.useState('');
+  const [name,setName] = React.useState('');
+  const [surname,setSurname] = React.useState('');
+  const [email,setEmail] = React.useState('');
+  const [className,setClassName] = React.useState('');
+  const [grade,setGrade] = React.useState('');
+  const [subject,setSubject] = React.useState('');
+  
+  React.useEffect(() => {
+    const initial_string = currentUser.displayName;
+    setStatus(initial_string[0] === 'S' ? 'Student' : initial_string[0] === 'T' ? 'Teacher' : 'Parent');
+    const tokens = initial_string.split('_');
+    setClassName(tokens[2]);
+    setGrade(tokens[1]);
+    const name_tokens = tokens[3].split(' ');
+    setName(name_tokens[0]);
+    setSurname(`${name_tokens[1]} ${name_tokens.length === 3 ? name_tokens[2] : ''}`);
+    setEmail(currentUser.email);
+    setSubject(tokens[4]);
+  },[currentUser]);
+
+  console.log('name: ',currentUser.displayName);
+
 
   return (
     <View style={styles.mainContainer}>
@@ -19,20 +46,24 @@ export default function TabTwoScreen() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.subtitle}>Student</Text>
+      <Text style={styles.subtitle}>{status}</Text>
 
       <View style={styles.infoFlex}>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Name</Text>
-          <Text style={styles.info}>Padurariu</Text>
+          <Text style={styles.info}>{name}</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Surame</Text>
-          <Text style={styles.info}>Riccardo</Text>
+          <Text style={styles.info}>{surname}</Text>
+        </View>
+        <View style={styles.labelContainer}>
+          <Text style={styles.label}>Subject</Text>
+          <Text style={styles.info}>{subject}</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Class</Text>
-          <Text style={styles.info}>XI A</Text>
+          <Text style={styles.info}>{grade} {className}</Text>
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>School</Text>
@@ -40,11 +71,17 @@ export default function TabTwoScreen() {
         </View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>Email</Text>
-          <Text style={styles.info}>padurariuriccardoioan@gmail.com</Text>
+          <Text style={styles.info}>{email}</Text>
         </View>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity 
+        style={styles.logoutButton}
+        onPress={() => {
+          router.replace('/register');
+          auth.signOut();
+        }}  
+      >
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
 

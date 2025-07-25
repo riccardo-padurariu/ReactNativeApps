@@ -1,43 +1,135 @@
-import React from "react";
+import { DataContext } from "@/app/DataContext";
+import { useAuth } from "@/Authentification/AuthContext";
+import { app } from "@/Authentification/Firebase";
+import { getDatabase, onValue, ref } from "firebase/database";
+import React, { useContext } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+type Grade = {
+  grade: number;
+  date: any;
+}
+
+type Absent = {
+  day: string;
+  month: string;
+}
+
 const Subject = ({
-  discipline,
-  grades,
-  absents
+  discipline
 } : {
-  discipline: string,
-  grades: any[],
-  absents: any[]
+  discipline: string;
 }) => {
 
+  const { currentUser } = useAuth();
+  const { studentsList } = useContext(DataContext);
+  const [grades,setGrades] = React.useState<Grade[]>();
+  const [absents,setAbsents] = React.useState<Absent[]>();
+  let displayGrades: any = [], displayAbsents: any = [];
   let grade = 0;
-  grades.forEach(element => {
-    grade+=Number(element.grade);
-  });
 
-  grade /= grades.length;
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    const tokens = currentUser.displayName.split('_');
+
+    let firebaseId;
+    studentsList.forEach((element: any) => {
+      if(element.id === currentUser.displayName) firebaseId = element.firebaseKey;
+    });
+
+    const db = getDatabase(app);
+    const link = currentUser.displayName[0] === 'T' ? `teachers` : `students/${tokens[1]}${tokens[2]}/${firebaseId}/${discipline}/grades`;
+    const studentRef = ref(db,link);
+
+    const unsubscribe = onValue(studentRef, (snapshot) => {
+      if(snapshot.exists()){
+        const gradesData = snapshot.val();
+
+        const gradesArr = Object.entries(gradesData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }))
+
+        setGrades(gradesArr);
+      }else{
+        setGrades([]);
+      }
+
+      if(Array.isArray(grades)){
+        grade = 0;
+        grades.forEach(element => {
+          grade+=Number(element.grade);
+        });
+
+        grade /= grades.length;
+      }
+
+    }, (error: any) => {
+      console.log("Error fetching grades: ", error);
+    });
+
+    return () => unsubscribe();
+
+  },[currentUser]);
+
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    const tokens = currentUser.displayName.split('_');
+
+    let firebaseId;
+    studentsList.forEach((element: any) => {
+      if(element.id === currentUser.displayName) firebaseId = element.firebaseKey;
+    });
+
+    const db = getDatabase(app);
+    const link = currentUser.displayName[0] === 'T' ? `teachers` : `students/${tokens[1]}${tokens[2]}/${firebaseId}/${discipline}/absents`;
+    const studentRef = ref(db,link);
+
+    const unsubscribe = onValue(studentRef, (snapshot) => {
+      if(snapshot.exists()){
+        const absentsData = snapshot.val();
+
+        const absentsArr = Object.entries(absentsData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }))
+
+        setAbsents(absentsArr);
+      }else{
+        setAbsents([]);
+      }
+
+    }, (error: any) => {
+      console.log("Error fetching absents: ", error);
+    });
+
+    return () => unsubscribe();
+
+  },[currentUser]);
+
+  
 
   const [showGrades,setShowGrades] = React.useState(true);
   const [showAbsents,setShowAbsents] = React.useState(false);
-
-  const arr1 = grades, arr2 = absents;
-  const displayGrades = arr1.map((item) => (
-    <View style={styles.container}>
-      <Text style={styles.containerText}>{item.grade}/{item.date.day}.{item.date.month}</Text>
-    </View>
-  ))
-  const displayAbsents = arr2.map((item) => (
-    <View style={styles.container}>
-      <Text style={styles.containerText}>
-        {item.day}.{item.month}
-      </Text>
-    </View>
-  ))
+  
 
   const handle = (c1: boolean,c2: boolean) => {
     setShowAbsents(c2);
     setShowGrades(c1);
+  }
+
+  const getFinalGrade = () => {
+    if(grades){
+      grade = 0;
+      grades.forEach(element => {
+        grade+=Number(element.grade);
+      });
+
+      grade /= grades.length;
+    }
+    return grade.toFixed(2);
   }
 
   return (
@@ -61,10 +153,20 @@ const Subject = ({
           </TouchableOpacity>
         </View>
         <View style={styles.flex}>
-          {showGrades && displayGrades}
-          {showAbsents && displayAbsents}
+          {showGrades && grades && grades.map((item) => (
+          <View style={styles.container}>
+            <Text style={styles.containerText}>{item.grade}/{item.date.day}.{item.date.month}</Text>
+          </View>
+        ))}
+          {showAbsents && absents && absents.map((item) => (
+          <View style={styles.container}>
+            <Text style={styles.containerText}>
+              {item.day}.{item.month}
+            </Text>
+          </View>
+        ))}
         </View>
-        <Text style={styles.finalGrade}>Final grade: {grade.toFixed(0)}</Text>
+        <Text style={styles.finalGrade}>Final grade: {(grades && grades.length === 0) ? 'No grades yet' : String(getFinalGrade())}</Text>
       </View>
     </View>
   )

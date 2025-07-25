@@ -1,7 +1,9 @@
+import { useAuth } from '@/Authentification/AuthContext';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import GradesModal from './SidebarModals/GradesModal';
+import GradesModal from './SidebarModals/GradesModalStudent';
+import GradesModalTeacher from './SidebarModals/GradesModalTeacher';
 import HomeworkModal from './SidebarModals/HomeworkModal';
 import ScheduleModal from './SidebarModals/ScheduleModal';
 
@@ -16,6 +18,15 @@ const SidebarModal = ({
   const [homeworkActive,setHomeworkActive] = React.useState(false);
   const [scheduleActive,setScheduleActive] = React.useState(false);
   const [gradeACtive,setGradesActive] = React.useState(false);
+  const [name,setName] = React.useState('');
+  const { currentUser } = useAuth();
+
+  React.useEffect(() => {
+    if(currentUser){
+      const tokens = currentUser.displayName.split('_');
+      setName(tokens[3]);
+    }
+  },[currentUser]);
 
   return (
     <Modal
@@ -30,7 +41,7 @@ const SidebarModal = ({
           >
             <AntDesign name="arrowleft" size={24} color="white" />
           </TouchableOpacity>
-          <Text style={styles.title}>Padurariu Riccardo</Text>
+          <Text style={styles.title}>{name}</Text>
         </View>
 
         <View style={styles.routeContainer}>
@@ -110,10 +121,16 @@ const SidebarModal = ({
           ]}
         />
 
-        <GradesModal 
-          condition={gradeACtive}
-          setCondition={setGradesActive}
-        /> 
+        {currentUser.displayName[0] === 'T' 
+        ? <GradesModalTeacher 
+            condition={gradeACtive}
+            setCondition={setGradesActive}
+          />
+        : <GradesModal 
+            condition={gradeACtive}
+            setCondition={setGradesActive}
+          /> 
+        }
 
       </View>
     </Modal>

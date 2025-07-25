@@ -1,3 +1,4 @@
+import { useAuth } from '@/Authentification/AuthContext';
 import Feather from '@expo/vector-icons/Feather';
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -9,8 +10,8 @@ const Notification = ({
   date,
   time,
   type,
-  dueDate,
-  dueTime
+  teacherName,
+  className
 } : {
   grade: any,
   name: string,
@@ -18,9 +19,12 @@ const Notification = ({
   date: any,
   time: any,
   type: string,
-  dueDate: any,
-  dueTime: any
+  teacherName: string,
+  className: string
 }) => {
+
+  const { currentUser } = useAuth();
+
   return (
     <TouchableOpacity>
       <View style={styles.mainContainer}>
@@ -28,7 +32,11 @@ const Notification = ({
           <Feather name={type === 'grade' ? "check-circle" : type === 'homework' ? "book" : "user-x"} size={24} color="white" />
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.title}>{type === 'grade' ? `Grade ${grade} by professor ${name}` : type === 'homework' ? `Homework: ${grade} added by ${name}` : `Absent added by ${name}`}</Text>
+          {
+          currentUser.displayName[0] === 'T' 
+            ? <Text style={styles.title}>{type === 'grade' ? `You added grade ${grade} to the student ${name}` : type === 'homework' ? `You added the homework ${grade} to class ${className}` : `You added absent to the student ${name}`}</Text>
+            : <Text style={styles.title}>{type === 'grade' ? `Grade ${grade} by professor ${teacherName}` : type === 'homework' ? `Homework: ${grade} added by ${teacherName}` : `Absent added by ${teacherName}`}</Text>
+          }
           <Text style={styles.discipline}>Discipline: {discipline}</Text>
           <View style={styles.date}>
             <Text style={styles.dateText}>On {date.day}.{date.month}.{date.year} at {time.hour}:{time.minutes}</Text>

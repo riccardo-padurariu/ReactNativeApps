@@ -1,3 +1,4 @@
+import { useAuth } from '@/Authentification/AuthContext';
 import { stats, subjects } from '@/GradesData';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import React from "react";
@@ -12,12 +13,13 @@ const GradesModal = ({
   setCondition: any
 }) => {
 
+
+  const { currentUser } = useAuth();
+
   const arr = subjects;
   const displayArr = arr.map((item) => (
     <Subject 
       discipline={item.discipline}
-      grades={item.grades}
-      absents={item.absents}
     />
   ))
 

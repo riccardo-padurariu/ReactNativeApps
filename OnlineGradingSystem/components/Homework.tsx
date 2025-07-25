@@ -1,3 +1,4 @@
+import { useAuth } from "@/Authentification/AuthContext";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -8,7 +9,8 @@ const Homework = ({
   date,
   time,
   dueDate,
-  dueTime
+  dueTime,
+  className
 } : {
   discipline: string,
   name: string,
@@ -16,9 +18,12 @@ const Homework = ({
   date: any,
   time: any,
   dueDate: any,
-  dueTime: any
-
+  dueTime: any,
+  className: string
 }) => {
+
+  const { currentUser } = useAuth();
+
   return (
     <TouchableOpacity
       style={styles.mainContainer}
@@ -27,7 +32,7 @@ const Homework = ({
         <Text style={styles.disciplineText}>{discipline}</Text>
       </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.title}>Professor {name} added the homework: {title}</Text>
+        <Text style={styles.title}>{currentUser.displayName[0] === 'T' ? `You added the homework ${title} to the class ${className}` : `Professor ${name} added the homework: ${title}`}</Text>
         <Text>Due on: {dueDate.day}.{dueDate.month}.{dueDate.year} at {dueTime.hour}:{dueTime.minutes}</Text>
       </View>
       <View style={styles.postDate}>
