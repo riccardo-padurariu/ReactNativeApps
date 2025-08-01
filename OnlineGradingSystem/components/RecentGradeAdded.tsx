@@ -24,8 +24,8 @@ const RecentGradeAdded = ({
       <TouchableOpacity>
         <View style={styles.mainContainer}>
           <View style={styles.dateContainer}>
-            <Text style={styles.dateText}>{`${date.day}.${date.month}.${date.year}`}</Text>
-            <Text style={styles.dateText}>{`${time.hour}:${time.minutes}`}</Text>
+            <Text style={styles.dateText}>{`${date.day < 10 ? `0${date.day}` : date.day}.${date.month < 10 ? `0${date.month}` : date.month}.${date.year}`}</Text>
+            <Text style={styles.dateText}>{`${time.hour < 10 ? `0${time.hour}` : time.hour}:${time.minutes < 10 ? `0${time.minutes}` : time.minutes}`}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.mainText}>

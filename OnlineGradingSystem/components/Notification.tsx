@@ -24,6 +24,7 @@ const Notification = ({
 }) => {
 
   const { currentUser } = useAuth();
+  console.log(date);
 
   return (
     <TouchableOpacity>
@@ -39,7 +40,7 @@ const Notification = ({
           }
           <Text style={styles.discipline}>Discipline: {discipline}</Text>
           <View style={styles.date}>
-            <Text style={styles.dateText}>On {date.day}.{date.month}.{date.year} at {time.hour}:{time.minutes}</Text>
+            <Text style={styles.dateText}>On {date.day < 10 ? `0${date.day}` : date.day}.{date.month < 10 ? `0${date.month}` : date.month}.{date.year} at {time.hour < 10 ? `0${time.hour}` : time.hour}:{time.minutes < 10 ? `0${time.minutes}` : time.minutes}</Text>
           </View>
         </View>
       </View>

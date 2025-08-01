@@ -2,7 +2,6 @@ import { useAuth } from '@/Authentification/AuthContext';
 import { app } from '@/Authentification/Firebase';
 import Notification from '@/components/Notification';
 import SidebarModal from '@/components/SidebarModal';
-import studentRecords from '@/NotificationData';
 import Feather from '@expo/vector-icons/Feather';
 import { getDatabase, onValue, ref } from 'firebase/database';
 import React, { useContext } from "react";
@@ -26,6 +25,8 @@ const Notifications = () => {
 
   const [sidebarActive,setSidebarActive] = React.useState(false);
   const [notificationList,setNotificationList] = React.useState<Not[]>();
+  const [general,setGeneral] = React.useState<Not[]>([]);
+  const [final,setFinal] = React.useState([]);
   const { currentUser } = useAuth();
   const { studentsList, teachersList } = useContext(DataContext);  
   let displayArr: any = [];
@@ -46,9 +47,11 @@ const Notifications = () => {
 
     const db = getDatabase(app);
     const link = currentUser.displayName[0] === 'T' ? `teachers/${firebaseId}/notifications` : `students/${tokens[1]}${tokens[2]}/${firebaseId}/notifications`;
+    const link_student = `students/${tokens[1]}${tokens[2]}/general`;
     const userTasksRef = ref(db, link);
+    const studentRef = ref(db,link_student);
 
-    const unsubscribe = onValue(userTasksRef, (snapshot) => {
+    const unsubscribe1 = onValue(userTasksRef, (snapshot) => {
       if(snapshot.exists()){
         const idData = snapshot.val();
         const idArr = Object.entries(idData).map(([key,value]) => ({
@@ -75,23 +78,70 @@ const Notifications = () => {
       console.log("Error fetching id's: ", error);
     });
 
-    return () => unsubscribe();
+    const unsubscribe2 = onValue(studentRef, (snapshot) => {
+      if(snapshot.exists()){
+        const idData = snapshot.val();
+        const idArr = Object.entries(idData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }))
+        idArr.sort((a: any,b: any) => {
+          if(a.date.year > b.date.year) return -1;
+          else if(a.date.year < b.date.year) return 1;
+          else if(a.date.month > b.date.month) return -1;
+          else if(a.date.month < b.date.month) return 1;
+          else if(a.date.day > b.date.day) return -1;
+          else if(a.date.day < b.date.day) return 1;
+          else if(a.time.hour > b.time.hour) return -1;
+          else if(a.time.hour < b.time.hour) return 1;
+          else if(a.time.minutes > b.time.minutes) return -1;
+          else return 1;
+        });
+        setGeneral(idArr);
+      }else{
+        setGeneral([]);
+      }
+    }, (error: any) => {
+      console.log("Error fetching id's: ", error);
+    });
+
+    return () => {
+      unsubscribe1();
+      unsubscribe2();
+    } 
 
   },[currentUser, teachersList, studentsList]);
 
-  const arr = studentRecords;
-  /*const displayArr = arr.map(item => (
-    <Notification 
-      name={item.name}
-      date={item.date}
-      time={item.time}
-      dueDate={item.dueDate}
-      dueTime={item.dueTime}
-      type={item.type}
-      grade={item.value}
-      discipline={item.discipline}
-    />
-  ))*/
+  React.useEffect(() => {
+
+    if(!notificationList || !general) return;
+
+    const merged = [...notificationList, ...general];
+
+    console.log(notificationList);
+    console.log(general);
+    console.log(merged);
+
+    let new_arr = merged; 
+    if(currentUser.displayName[0] === 'T') new_arr = merged.filter((item: any) => (item.className !== undefined));
+
+    const sorted = new_arr?.sort((a, b) => {
+        if(a.date.year > b.date.year) return -1;
+        else if(a.date.year < b.date.year) return 1;
+        else if(a.date.month > b.date.month) return -1;
+        else if(a.date.month < b.date.month) return 1;
+        else if(a.date.day > b.date.day) return -1;
+        else if(a.date.day < b.date.day) return 1;
+        else if(a.time.hour > b.time.hour) return -1;
+        else if(a.time.hour < b.time.hour) return 1;
+        else if(a.time.minutes > b.time.minutes) return -1;
+        else return 1;
+    });
+
+    console.log(new_arr);
+
+    setFinal(sorted);
+  }, [notificationList, general]);
 
   return (
     <View style={styles.mainContainer}>
@@ -104,11 +154,11 @@ const Notifications = () => {
         </TouchableOpacity>
       </View>
 
-      {(notificationList && notificationList.length === 0) && <Text style={{margin: 20,fontSize: 20,fontWeight: 'bold'}}>No notifications</Text>}
+      {(final && final.length === 0) && <Text style={{margin: 20,fontSize: 20,fontWeight: 'bold'}}>No notifications</Text>}
 
       <ScrollView>
         <View style={{padding: 15}}>
-          {notificationList && notificationList.map((item: Not) => (
+          {final && final.map((item: Not) => (
             <Notification 
               name={item.name}
               date={item.date}

@@ -51,7 +51,7 @@ const HomeworkModal = ({
     if(!activeArr) return;
 
     const db = getDatabase(app);
-    const link = currentUser.displayName[0] === 'T' ? `teachers/${firebaseId}/homeworks` : `students/${tokens[1]}${tokens[2]}/homeworks`;   
+    const link = currentUser.displayName[0] === 'T' ? `teachers/${firebaseId}/homeworks` : `students/${tokens[1]}${tokens[2]}/homeworks`;
     const userTasksRef = ref(db, link);
 
     const unsubscribe = onValue(userTasksRef, (snapshot) => {
@@ -88,11 +88,11 @@ const HomeworkModal = ({
             </TouchableOpacity>
             <Text style={styles.titleText}>Homeworks</Text>
           </View>
-          <TouchableOpacity
+          {currentUser.displayName[0] === 'T' && <TouchableOpacity
             onPress={() => setIsAdding(true)}
           >
             <AntDesign name="plus" size={24} color="white" />
-          </TouchableOpacity>
+          </TouchableOpacity>}
         </View>
 
         {homeworkList && homeworkList.length === 0 && <Text style={{margin: 20,fontSize: 20,fontWeight: 'bold'}}>No homeworks</Text>}
@@ -108,6 +108,7 @@ const HomeworkModal = ({
             dueDate={item.dueDate}
             dueTime={item.dueTime}
             className={item.className}
+            firebaseKey={item.firebaseKey}
           />
         ))}
         </ScrollView>

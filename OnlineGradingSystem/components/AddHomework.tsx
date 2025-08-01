@@ -24,6 +24,7 @@ const AddHomework = ({
   const [hour,setHour] = React.useState(new Date());
   const [className,setClassName] = React.useState();
   const [classList,setClassList] = React.useState([]);
+  const [studentClassList,setStudentClassList] = React.useState([]);
 
   const { teachersList } = useContext(DataContext);
   const { currentUser } = useAuth();
@@ -51,6 +52,31 @@ const AddHomework = ({
       return () => unsubscribe();
   
     },[currentUser]);
+
+    React.useEffect(() => {
+      if(!currentUser) return;
+
+      const db = getDatabase(app);
+      const studentRef = ref(db,`students/${className}`);
+      
+      const unsubscribe = onValue(studentRef, (snapshot) => {
+        if(snapshot.exists()){
+          const studentData = snapshot.val();
+          const studentArr = Object.entries(studentData).map(([key,value]) => ({
+            ...value,
+            firebaseKey: key
+          }));
+          setStudentClassList(studentArr);
+        }else{
+          setStudentClassList([]);
+        }
+      }, (error: any) => {
+        console.log('Error extracting students: ',error);
+      });
+
+      return () => unsubscribe();
+
+    },[currentUser, className]);
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
     setShowDate(false);
@@ -100,7 +126,8 @@ const AddHomework = ({
         month: current_date.getMonth() + 1,
         year: current_date.getFullYear()
       },
-      className: className
+      className: className,
+      id: `${currentUser.displayName}_${className}_${title}`
     };
 
     await push(teacherRef,data);
@@ -135,15 +162,81 @@ const AddHomework = ({
         month: current_date.getMonth() + 1,
         year: current_date.getFullYear()
       },
-      className: className
+      className: className,
+      id: `${currentUser.displayName}_${className}_${title}`
     };
 
     await push(teacherRef,data);
   }
 
-  const addHomework = () => {
-    addHmTeacher().then(() => addHmStudent());
-    setCondition(false);
+  const addHmStudentNot = async() => {
+    const current_date = new Date();
+    const db = getDatabase(app);
+    const studRef = ref(db,`students/${className}/general`);
+    const tokens = currentUser.displayName.split('_');
+    const data = {
+      grade: title,
+      date: {
+        day: date.getDate(),
+        month: date.getMonth() + 1,
+        year: date.getFullYear()
+      },
+      time: {
+        minutes: date.getMinutes(),
+        hour: date.getHours()
+      },
+      teacherName: tokens[3],
+      discipline: tokens[4],
+      type: 'homework',
+      id: `${currentUser.displayName}_${className}_${title}`
+    }
+
+    await push(studRef,data);
+  }
+
+  const addHmTeacherNot = async() => {
+
+    
+    let firebaseId;
+    teachersList.forEach((element: any) => {
+      if(element.id === currentUser.displayName) firebaseId = element.firebaseKey;
+    });
+
+    const db = getDatabase(app);
+    const teacherRef = ref(db,`teachers/${firebaseId}/notifications`);
+    const tokens = currentUser.displayName.split('_');
+    const current_date = new Date();
+    const data = {
+      grade: title,
+      date: {
+        day: current_date.getDate(),
+        month: current_date.getMonth() + 1,
+        year: current_date.getFullYear()
+      },
+      time: {
+        minutes: current_date.getMinutes(),
+        hour: current_date.getHours()
+      },
+      teacherName: tokens[3],
+      discipline: tokens[4],
+      type: 'homework',
+      className: className,
+      id: `${currentUser.displayName}_${className}_${title}`
+    };
+
+    await push(teacherRef,data);
+  }
+
+  const addHomework = async() => {
+    try{
+      await addHmTeacher();
+      await addHmStudent();
+      await addHmTeacherNot();
+      await addHmStudentNot();
+      setCondition(false);
+    }catch(error: any){
+      console.log('Error adding homework: ',error);
+    }
   }
 
   return (
@@ -197,7 +290,7 @@ const AddHomework = ({
                 Select due date
               </Text>}
             </TouchableOpacity>
-            <Text style={{fontSize: 15}}>Date selected: {date ? `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}` : ''}</Text>
+            <Text style={{fontSize: 15}}>Date selected: {date ? `${date.getDate() < 10 ? `0${date.getDate()}` : `${date.getDate()}`}.${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth()}.${date.getFullYear()}` : ''}</Text>
           </View>
           <View style={styles.inputContainer}>
             <TouchableOpacity
@@ -216,7 +309,7 @@ const AddHomework = ({
                 Select due hour
               </Text>}
             </TouchableOpacity>
-            <Text style={{fontSize: 15}}>Hour selected: {hour ? `${hour.getHours()}:${hour.getMinutes()}` : ''}</Text>
+            <Text style={{fontSize: 15}}>Hour selected: {hour ? `${hour.getHours() < 10 ? `0${hour.getHours()}` : hour.getHours()}:${hour.getMinutes() < 10 ? `0${hour.getMinutes()}` : hour.getMinutes()}` : ''}</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
@@ -250,7 +343,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20,
     width: '87%',
-    height: '60%',
+    height: '64%',
     borderRadius: 15
   },
   header: {

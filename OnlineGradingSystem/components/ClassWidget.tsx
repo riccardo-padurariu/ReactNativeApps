@@ -32,8 +32,8 @@ const ClassWidget = ({
           ...value,
           firebaseKey: key
         }))
-
-        setClassStudentsList(arr);
+        const new_arr = arr.filter((item: any) => (item.firebaseKey !== 'homeworks' && item.firebaseKey !== 'general'));
+        setClassStudentsList(new_arr);
       }else{
         setClassStudentsList([]);
       }
