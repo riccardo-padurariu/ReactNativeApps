@@ -1,31 +1,52 @@
+import { useAuth } from "@/Authentification/AuthContext";
+import { auth } from "@/Authentification/Firebase";
+import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Profile = () => {
+
+  const { currentUser, userLoggedIn } = useAuth();
+
   return (
-    <View style={styles.mainContainer}>
-      <Text style={styles.title}>Profile</Text>
-      <View style={styles.infoMainContainer}>
-        <TouchableOpacity style={styles.infoContainer}>
-          <Text style={styles.infoText}>Contact Info</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.infoContainer}>
-          <Text style={styles.infoText}>About Us</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.infoContainer}>
-          <Text style={styles.infoText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.infoContainer}>
-          <Text style={styles.infoText}>Cart History</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.infoContainer}>
-          <Text style={styles.infoText}>Payment Info</Text>
+    userLoggedIn
+     ? <View style={styles.mainContainer}>
+        <Text style={styles.title}>Profile</Text>
+        <View style={styles.infoMainContainer}>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Text style={styles.infoText}>Contact Info</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Text style={styles.infoText}>About Us</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Text style={styles.infoText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Text style={styles.infoText}>Cart History</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Text style={styles.infoText}>Payment Info</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => {router.replace('/(tabs)/home'),auth.signOut()}}
+        >
+          <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+    : <View style={styles.mainContainer}>
+        <View style={styles.notLoggedContainer}>
+          <Text style={styles.title}>You're not logged in.Log in or register and start shopping!</Text>
+          <TouchableOpacity 
+            style={styles.checkOutButton}
+            onPress={() => router.push('/login')}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
   )
 }
 
@@ -74,6 +95,20 @@ const styles = StyleSheet.create({
     fontFamily: 'ABeeZee',
     fontSize: 17,
     color: 'white'
+  },
+  notLoggedContainer: {
+    marginTop: 50,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    padding: 20
+  },
+  checkOutButton: {
+    backgroundColor: '#FFE311',
+    padding: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+    marginTop: 20
   }
 });
 

@@ -1,6 +1,9 @@
 import { DataContext } from '@/app/DataProvider';
+import { useAuth } from '@/Authentification/AuthContext';
+import { app } from '@/Authentification/Firebase';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { getDatabase, ref, update } from 'firebase/database';
 import React, { useContext } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -21,17 +24,22 @@ const CartItem = ({
 }) => {
 
   const { cartList, setCartList } = useContext(DataContext);
+  const { currentUser } = useAuth();
 
-  const handle = (amount: number) => {
-    const arr = cartList.map((item: any) => {
-      if(item.id === id){
-        return {...item,quantity: item.quantity + amount};
-      }
-      return item;
+  const currentQuantity = cartList.find((item: any) => item.id === id);
+  if(!currentQuantity) return null;
+  console.log(currentQuantity);
+
+  const handle = async(amount: number) => {
+    let firebaseId;
+    cartList.forEach((element: any) => {
+      if(element.id === `${name}_${price}`) firebaseId = element.firebaseKey;
     });
-    console.log(arr);
-    setCartList(arr);
-    console.log('clicked');
+
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${currentUser.uid}/cart/${firebaseId}`);
+
+    await update(userRef,{quantity: Number(currentQuantity.quantity) + amount});
   }
 
   return (

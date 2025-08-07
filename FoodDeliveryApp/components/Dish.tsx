@@ -1,6 +1,9 @@
 import { DataContext } from '@/app/DataProvider';
+import { useAuth } from '@/Authentification/AuthContext';
+import { app } from '@/Authentification/Firebase';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
+import { getDatabase, onValue, push, ref, update } from 'firebase/database';
 import React, { useContext } from "react";
 import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AddedModal from './AddedModal';
@@ -26,39 +29,79 @@ const Dish = ({
 }) => { 
 
   const {cartList,setCartList} = useContext(DataContext);
-
+  const { currentUser } = useAuth();
   const [quantity,setQuantity] = React.useState(1);
+  const [currentQuantity,setCurrentQuantity] = React.useState(0);
+
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    let firebaseId;
+    cartList.forEach((element: any) => {
+      if(element.id === `${name}_${price}`) firebaseId = element.firebaseKey;
+    });
+
+    const db = getDatabase(app);
+    const quantityRef = ref(db,`users/${currentUser.uid}/cart/${firebaseId}/quantity`);
+
+    const unsubscribe = onValue(quantityRef, (snapshot) => {
+      if(snapshot.exists()){
+        const quantityData = snapshot.val();
+        setCurrentQuantity(quantityData);
+      }else{
+        setCurrentQuantity(0);
+      }
+    }, (error: any) => {
+      console.log('Error fetching quantity: ',error);
+    })
+
+    return () => unsubscribe();
+
+  },[currentUser,cartList]);
 
   function exists(id: string){
     let e = false;
     cartList.forEach((element: any) => {
-      if(element.id === id) e = true;
+      if(element.id === `${name}_${price}`) e = true;
     });
     return e;
   }
 
-  const addToCart = () => {
+  const addToCartDb = async() => {
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${currentUser.uid}/cart`);
+    const data = {
+      name: name,
+      price: price,
+      quantity: quantity,
+      id: `${name}_${price}`,
+      location: location,
+      index: 1
+    };
+
+    await push(userRef,data);
+  }
+
+  const updateCart = async() => {
+
+    let firebaseId;
+    cartList.forEach((element: any) => {
+      if(element.id === `${name}_${price}`) firebaseId = element.firebaseKey;
+    });
+
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${currentUser.uid}/cart/${firebaseId}`);
+
+    await update(userRef,{quantity: quantity + currentQuantity});
+  }
+
+  const addToDatabaseCart = () => {
     if(exists(id)){
-      const arr = cartList.map((item: any) => {
-        if(item.id === id)
-          return {...item,quantity: item.quantity + quantity}
-        return item;
-      })
-      setCartList(arr);
-      handle();
-    }else{
-      setCartList((prev: any) => [
-        ...prev,
-        {
-          name: name,
-          price: price,
-          quantity: quantity,
-          id: `${name}_${price}`,
-          location: location,
-          index: 3
-        }
-      ])
-    }
+      updateCart();
+      console.log('updated!');
+    }else
+      addToCartDb();
+
     handle();
   }
 
@@ -105,7 +148,7 @@ const Dish = ({
               </View>
               <TouchableOpacity
                 style={styles.addToCartButton}
-                onPress={addToCart}
+                onPress={addToDatabaseCart}
               >
                 <Text style={styles.addToCartText}>Add to cart</Text>
               </TouchableOpacity>

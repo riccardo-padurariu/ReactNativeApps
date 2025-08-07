@@ -3,10 +3,12 @@ import Feather from '@expo/vector-icons/Feather';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
+import { useAuth } from '../../Authentification/AuthContext';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const { currentUser, userLoggedIn } = useAuth();
+  
   return (
       <Tabs 
         screenOptions={{

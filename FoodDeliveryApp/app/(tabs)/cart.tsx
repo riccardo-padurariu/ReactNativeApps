@@ -1,3 +1,4 @@
+import { useAuth } from '@/Authentification/AuthContext';
 import CartItem from '@/components/CartItem';
 import { router } from 'expo-router';
 import React, { useContext } from 'react';
@@ -17,65 +18,82 @@ export default function TabTwoScreen() {
     return sum;
   }
 
+  const { currentUser, userLoggedIn } = useAuth();
+
   return (
-    <View style={styles.mainContainer}>
-      {cartList.length 
-      ?
-        <View style={styles.mainCartContainer}>
-          <View>
-            <Text style={styles.title}>Cart</Text>
-            <ScrollView>
-              {cartList.map((item: any) => (
-                <CartItem
-                  name={item.name}
-                  price={item.price}
-                  quantity={item.quantity}
-                  location={item.location}
-                  id={item.id}
-                  index={item.index}
-                />
-              ))}
-            </ScrollView>
-          </View>
-          <View style={styles.checkOutContainer}>
-            <View style={styles.checkOutInfo}>
-              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
-                <Text style={styles.checkText}>Dish price:</Text>
-                <Text style={styles.checkText}>{getTotalPrice()}$</Text>
+    userLoggedIn 
+      ? <View style={styles.mainContainer}>
+          {cartList.length 
+          ?
+            <View style={styles.mainCartContainer}>
+              <View>
+                <Text style={styles.title}>Cart</Text>
+                <ScrollView>
+                  {cartList.map((item: any) => (
+                    <CartItem
+                      name={item.name}
+                      price={item.price}
+                      quantity={item.quantity}
+                      location={item.location}
+                      id={item.id}
+                      index={item.index}
+                    />
+                  ))}
+                </ScrollView>
               </View>
-              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
-                <Text style={styles.checkText}>Taxes:</Text>
-                <Text style={styles.checkText}>{getTotalPrice() < 200 ? 10 : 5}$</Text>
-              </View>
-              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
-                <Text style={styles.checkText}>Delivery:</Text>
-                <Text style={styles.checkText}> {getTotalPrice() < 200 ? 20 : 10}$</Text>
-              </View>
-              <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
-                <Text style={styles.checkText}>Total:</Text>
-                <Text style={styles.checkText}>{getTotalPrice() < 200 ? getTotalPrice()+30 : getTotalPrice()+15}$</Text>
+              <View style={styles.checkOutContainer}>
+                <View style={styles.checkOutInfo}>
+                  <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                    <Text style={styles.checkText}>Dish price:</Text>
+                    <Text style={styles.checkText}>{getTotalPrice().toFixed(2)}$</Text>
+                  </View>
+                  <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                    <Text style={styles.checkText}>Taxes:</Text>
+                    <Text style={styles.checkText}>{getTotalPrice() < 200 ? 10 : 5}$</Text>
+                  </View>
+                  <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                    <Text style={styles.checkText}>Delivery:</Text>
+                    <Text style={styles.checkText}> {getTotalPrice() < 200 ? 20 : 10}$</Text>
+                  </View>
+                  <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between'}}>
+                    <Text style={styles.checkText}>Total:</Text>
+                    <Text style={styles.checkText}>{getTotalPrice() < 200 ? (getTotalPrice()+30).toFixed(2) : (getTotalPrice()+15).toFixed(2)}$</Text>
+                  </View>
+                </View>
+                <TouchableOpacity 
+                  style={styles.checkOutButton}
+                  onPress={() => router.push('/checkout')}
+                >
+                  <Text style={styles.buttonText}>Check-out</Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={styles.checkOutButton}>
-              <Text style={styles.buttonText}>Check-out</Text>
+          : 
+            <View style={{alignItems: 'center',padding: 50,justifyContent: 'space-between',flex: 1}}>
+              <Text style={styles.title}>The cart is empty for the moment</Text>
+              <Image 
+                source={require('../../assets/images/image.png')}
+                style={{width: 340,height: 400}}
+              />
+              <TouchableOpacity 
+                onPress={() => router.push('/(tabs)/home')}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>Go Shopping!</Text>
+              </TouchableOpacity>
+            </View>}
+        </View>  
+      : <View style={styles.mainContainer}>
+          <View style={styles.notLoggedContainer}>
+            <Text style={styles.title}>You're not logged in.Log in or register and start shopping!</Text>
+            <TouchableOpacity 
+              style={styles.checkOutButton}
+              onPress={() => router.push('/login')}
+            >
+              <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
         </View>
-      : 
-        <View style={{alignItems: 'center',padding: 50,justifyContent: 'space-between',flex: 1}}>
-          <Text style={styles.title}>The cart is empty for the moment</Text>
-          <Image 
-            source={require('../../assets/images/image.png')}
-            style={{width: 340,height: 400}}
-          />
-          <TouchableOpacity 
-            onPress={() => router.push('/(tabs)/home')}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Go Shopping!</Text>
-          </TouchableOpacity>
-        </View>}
-    </View>  
   );
 }
 
@@ -131,6 +149,13 @@ const styles = StyleSheet.create({
     fontFamily: 'ABeeZee',
     fontSize: 16,
   },
+  notLoggedContainer: {
+    marginTop: 50,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    padding: 20
+  }
 });
 
 
