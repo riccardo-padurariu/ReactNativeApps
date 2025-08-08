@@ -1,6 +1,9 @@
+import { useAuth } from '@/Authentification/AuthContext';
+import { app } from '@/Authentification/Firebase';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
 import { router } from 'expo-router';
+import { getDatabase, push, ref, remove } from 'firebase/database';
 import React, { useContext } from "react";
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { DataContext } from "./DataProvider";
@@ -8,6 +11,7 @@ import { DataContext } from "./DataProvider";
 const Checkout = () => {
 
   const { cartList } = useContext(DataContext);
+  const { currentUser } = useAuth();
   const [adress,setAdress] = React.useState('None');
   const [adding,setAdding] = React.useState(false);
   const [edit,setEdit] = React.useState('');
@@ -18,6 +22,44 @@ const Checkout = () => {
       sum += element.price*element.quantity;
     });
     return sum;
+  }
+
+  const addToHistory = async() => {
+    const db = getDatabase(app);
+    const cartHistory = ref(db,`users/${currentUser.uid}/cartHistory`);
+    const date = new Date();
+    const data = {
+      cartContent: cartList,
+      totalPrice: getTotalPrice() < 200 ? (getTotalPrice()+30).toFixed(2) : (getTotalPrice()+15).toFixed(2),
+      adress: adress,
+      date: {
+        day: date.getDate() < 10 ? `0${date.getDate()}` : date.getDate(),
+        month: date.getMonth() + 1 < 10 ? `0${date.getMonth()}` : date.getMonth(),
+        year: date.getFullYear(),
+        hour: date.getHours() < 10 ? `0${date.getHours()}` : date.getHours(),
+        minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()
+      }
+    }
+
+    await push(cartHistory,data);
+  } 
+
+  const removeCart = async() => {
+    const db = getDatabase(app);
+    const cartRef = ref(db,`users/${currentUser.uid}/cart`);
+
+    await remove(cartRef);
+  }
+
+  const handleHistory = async() => {
+    try{
+      await addToHistory();
+      await removeCart();
+
+      router.replace('/finished-order');
+    }catch(error: any){
+      console.log('Error pushing the cart to history: ', error);
+    }
   }
 
   return (
@@ -87,7 +129,7 @@ const Checkout = () => {
           </View>
           <TouchableOpacity 
             style={styles.checkOutButton}
-            onPress={() => router.push('/checkout')}
+            onPress={handleHistory}
           >
             <Text style={styles.buttonText}>Finish order</Text>
           </TouchableOpacity>

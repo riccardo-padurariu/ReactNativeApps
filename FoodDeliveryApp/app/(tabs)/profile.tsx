@@ -22,10 +22,16 @@ const Profile = () => {
           <TouchableOpacity style={styles.infoContainer}>
             <Text style={styles.infoText}>Edit Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.infoContainer}>
+          <TouchableOpacity 
+            style={styles.infoContainer}
+            onPress={() => router.push('/cart-history')}
+          >
             <Text style={styles.infoText}>Cart History</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.infoContainer}>
+          <TouchableOpacity 
+            style={styles.infoContainer}
+            onPress={() => router.push('/payment-info')}  
+          >
             <Text style={styles.infoText}>Payment Info</Text>
           </TouchableOpacity>
         </View>
