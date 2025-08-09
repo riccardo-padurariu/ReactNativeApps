@@ -1,8 +1,9 @@
+import { DataContext } from "@/app/DataProvider";
 import { useAuth } from "@/Authentification/AuthContext";
 import { app } from "@/Authentification/Firebase";
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { getDatabase, push, ref } from "firebase/database";
-import React from "react";
+import { getDatabase, push, ref, update } from "firebase/database";
+import React, { useContext } from "react";
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const AddCardModal = ({
@@ -14,12 +15,13 @@ const AddCardModal = ({
 }) => {
 
   const { currentUser } = useAuth();
+  const { cardList } = useContext(DataContext);
   const [name,setName] = React.useState('');
   const [number,setNumber] = React.useState('');
   const [date,setDate] = React.useState('');
   const [cvc,setCvc] = React.useState('');
 
-  const addCard = async() => {
+  const addCardDb = async() => {
     const db = getDatabase(app);
     const cardRef = ref(db,`users/${currentUser.uid}/cards`);
     const data = {
@@ -31,6 +33,30 @@ const AddCardModal = ({
     };
 
     await push(cardRef,data);
+  }
+
+  const inactiveCard = async(card_id: string) => {
+    const db = getDatabase(app);
+    const cardRef = ref(db,`users/${currentUser.uid}/cards/${card_id}`);
+
+    await update(cardRef,{active: false});
+  }
+
+  const inactive = async() => {
+    cardList.forEach((element: any) => {
+      inactiveCard(element.firebaseKey);
+    });
+  }
+
+  const addCard = async() => {
+    try{
+      await inactive();
+      await addCardDb();
+
+      setCondition(false);
+    }catch(error: any){
+      console.log('Error pushing card to database: ', error);
+    }
   }
 
   return (

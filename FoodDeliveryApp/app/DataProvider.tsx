@@ -17,11 +17,21 @@ export type CartItem = {
 export type DataContextType = {
   cartList: CartItem[];
   setCartList: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  cardList: CardItem[];
+};
+
+export type CardItem = {
+  name: string;
+  number: string;
+  date: any;
+  cvc: string;
+  active: boolean;
 };
 
 const DataProvider = ({children} : {children: React.ReactNode}) => {
   
   const [cartList,setCartList] = React.useState<CartItem[]>([]);
+  const [cardList,setCardList] = React.useState<CardItem[]>([]);
   const { currentUser } = useAuth();
 
   React.useEffect(() => {
@@ -51,8 +61,35 @@ const DataProvider = ({children} : {children: React.ReactNode}) => {
 
   },[currentUser]);
 
+  React.useEffect(() => {
+    if(!currentUser) return;
+
+    const db = getDatabase(app);
+    const cardRef = ref(db,`users/${currentUser.uid}/cards`);
+
+    const unsubscribe = onValue(cardRef, (snapshot) => {
+      if(snapshot.exists()){
+        const cardData = snapshot.val();
+
+        const cardArr = Object.entries(cardData).map(([key,value]) => ({
+          ...value,
+          firebaseKey: key
+        }));
+
+        setCardList(cardArr);
+      }else{
+        setCardList([]);
+      }
+    }, (error: any) => {
+      console.log('Error fetching cards: ', error);
+    });
+
+    return () => unsubscribe();
+
+  },[currentUser]);
+
   return (
-    <DataContext.Provider value={{cartList, setCartList}}>
+    <DataContext.Provider value={{cartList, setCartList, cardList}}>
       {children}
     </DataContext.Provider>
   )

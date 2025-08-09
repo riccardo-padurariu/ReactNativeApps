@@ -3,6 +3,7 @@ import { app } from '@/Authentification/Firebase';
 import AddCardModal from '@/components/AddCardModal';
 import Card from '@/components/Card';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { router } from 'expo-router';
 import { getDatabase, onValue, ref } from 'firebase/database';
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -44,7 +45,9 @@ const PaymentInfo = () => {
     <View style={styles.mainContainer}>
       <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',marginBottom: 10}}>
         <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.back()}
+          >
             <AntDesign name="arrowleft" size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.title}>Payment Infos</Text>
