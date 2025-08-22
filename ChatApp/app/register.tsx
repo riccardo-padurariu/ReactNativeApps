@@ -1,7 +1,8 @@
 import { useAuth } from "@/Authentification/AuthContext";
-import { auth } from "@/Authentification/Firebase";
+import { app, auth } from "@/Authentification/Firebase";
 import { router } from "expo-router";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 import React from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -19,7 +20,15 @@ const Register = () => {
       await updateProfile(user.user, {
         displayName: name
       });
+
+      await set(ref(getDatabase(app), "users/" + user.user.uid), {
+        uid: user.user.uid,
+        email: user.user.email,
+        displayName: name,
+      });
+
       setCurrentUser(user.user);
+      
       if (user) router.replace('/home');
 
     } catch (error: any) {

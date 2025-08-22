@@ -1,4 +1,6 @@
 import { useAuth } from "@/Authentification/AuthContext";
+import { app } from "@/Authentification/Firebase";
+import { getDatabase, onValue, ref } from "firebase/database";
 import React from "react";
 
 export const DataContext = React.createContext(undefined);
@@ -8,11 +10,11 @@ const DataProvider = ({children} : {children: React.ReactNode}) => {
   const [usersList,setUsersList] = React.useState([]);
   const { currentUser } = useAuth();
 
-  /*React.useEffect(() => {
+  React.useEffect(() => {
     if(!currentUser) return;
 
     const db = getDatabase(app);
-    const usersRef = ref(db,``);
+    const usersRef = ref(db,`users`);
     
     const unsubscribe = onValue(usersRef, (snapshot) => {
       if(snapshot.exists()){
@@ -33,7 +35,7 @@ const DataProvider = ({children} : {children: React.ReactNode}) => {
 
     return () => unsubscribe();
  
-  },[currentUser]);*/
+  },[currentUser]);
 
   return (
     <DataContext.Provider value={{usersList}}>

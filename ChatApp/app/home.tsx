@@ -1,3 +1,4 @@
+import OptionsModal from '@/components/OptionsModal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import { router } from 'expo-router';
@@ -5,6 +6,9 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Home = () => {
+
+  const [showOptions,setShowOptions] = React.useState(false);
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
@@ -14,7 +18,9 @@ const Home = () => {
             <TouchableOpacity>
               <AntDesign style={{marginRight: 10}} name="search1" size={24} color="#90E0EF" />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowOptions(true)}
+            >
               <Feather name="more-vertical" size={24} color="#90E0EF" />
             </TouchableOpacity>
           </View>
@@ -26,6 +32,11 @@ const Home = () => {
       >
         <AntDesign name="plus" size={24} color="white" />
       </TouchableOpacity>
+
+      <OptionsModal 
+        condition={showOptions}
+        setCondition={setShowOptions}
+      />
     </View>
   )
 }
