@@ -32,8 +32,8 @@ const Login = () => {
           <TextInput style={styles.input} placeholder="Enter email" value={email} onChangeText={(text: any) => setEmail(text)} />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} placeholder="Enter email" value={password} onChangeText={(text: any) => setPassword(text)} />
+          <Text style={styles.label}>Password</Text>
+          <TextInput secureTextEntry style={styles.input} placeholder="Enter password" value={password} onChangeText={(text: any) => setPassword(text)} />
         </View>
         <TouchableOpacity
           style={styles.button}
@@ -81,7 +81,8 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#CAF0F8',
     borderRadius: 10,
-    marginTop: 5
+    marginTop: 5,
+    padding: 10
   },
   button: {
     alignItems: 'center',

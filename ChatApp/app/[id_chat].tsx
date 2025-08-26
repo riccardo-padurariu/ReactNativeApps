@@ -3,18 +3,17 @@ import { app } from "@/Authentification/Firebase";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams } from "expo-router";
-import { getDatabase, onValue, push, ref } from "firebase/database";
+import { getDatabase, onValue, push, ref, update } from "firebase/database";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const ChatPage = () => {
 
   const { id_chat, name } = useLocalSearchParams();
   const { currentUser } = useAuth();
   const [message,setMessage] = React.useState('');
-  const [chat,setChat] = React.useState([]);
-  const scrollViewRef = React.useRef<ScrollView>(null);
-
+  const [chat,setChat] = React.useState<any[]>([]);
+  const scrollViewRef = React.useRef<ScrollView | null>(null);
 
   React.useEffect(() => {
     if(!currentUser) return ;
@@ -26,17 +25,22 @@ const ChatPage = () => {
       if(snapshot.exists()){
         const chatData = snapshot.val();
 
-        const chatArr = Object.entries(chatData).map(([key,value]) => ({
+        const finalArr = Object.entries(chatData).map(([key,value]) => ({
           ...value,
           date: key.split('-')
         }));
+
+        const chatArr = finalArr.filter((item: any) => item.date[0] != 'last' && item.date[0] != 'active'); 
 
         console.log('chatArr: ',chatArr);
 
         chatArr.forEach((item: any) => {
           if(item.chat){
 
-            const chat_arr = Object.values(item.chat);
+            const chat_arr = Object.entries(item.chat).map(([key,value]) => ({
+              ...value,
+              message_id: key
+            }));
 
             chat_arr.sort((a: any,b: any) => {
               if(Number(a.year) > Number(b.year)) return 1;
@@ -48,6 +52,8 @@ const ChatPage = () => {
               else if(Number(a.hour) > Number(b.hour)) return 1;
               else if(Number(a.hour) < Number(b.hour)) return -1;
               else if(Number(a.minutes) > Number(b.minutes)) return 1;
+              else if(Number(a.minutes) < Number(b.minutes)) return -1;
+              else if(a.seconds > b.seconds) return 1;
               else return -1;
             });
 
@@ -77,6 +83,15 @@ const ChatPage = () => {
 
   },[currentUser]);
 
+  React.useEffect(() => {
+    if (chat.length > 0) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+    }
+  }, [chat]);
+
+
   const addMessageAuthor = async() => {
     const date = new Date();
     const date_id = `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}-${date.getMonth()+1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1}-${date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear()}`;
@@ -89,7 +104,9 @@ const ChatPage = () => {
       year: date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear(),
       hour: date.getHours() < 10 ? `0${date.getHours()}` : date.getHours(),
       minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
-      message: message
+      seconds: date.getSeconds(),
+      message: message,
+      visible: false
     };
 
     await push(userRef,data);
@@ -107,16 +124,72 @@ const ChatPage = () => {
       year: date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear(),
       hour: date.getHours() < 10 ? `0${date.getHours()}` : date.getHours(),
       minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
-      message: message
+      seconds: date.getSeconds(),
+      message: message,
+      visible: false
     };
 
     await push(userRef,data);
   }
 
+  const updateLastAuthor = async() => {
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${currentUser.uid}/chats/${id_chat}_${name}/last-message`);
+    const date = new Date();
+    const data = {
+      type: 'author',
+      day: date.getDate() < 10 ? `0${date.getDate()}` : date.getDate(),
+      month: date.getMonth()+1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1,
+      year: date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear(),
+      hour: date.getHours() < 10 ? `0${date.getHours()}` : date.getHours(),
+      minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
+      seconds: date.getSeconds(),
+      message: message,
+    }
+
+    await update(userRef,data);
+  }
+
+  const updateLastRecevier = async() => {
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${id_chat}/chats/${currentUser.uid}_${currentUser.displayName}/last-message`);
+    const date = new Date();
+    const data = {
+      type: 'recevier',
+      day: date.getDate() < 10 ? `0${date.getDate()}` : date.getDate(),
+      month: date.getMonth()+1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1,
+      year: date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear(),
+      hour: date.getHours() < 10 ? `0${date.getHours()}` : date.getHours(),
+      minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
+      seconds: date.getSeconds(),
+      message: message,
+    }
+
+    await update(userRef,data);
+  }
+
+  const addVisibleAuthor = async() => {
+    const db = getDatabase(app);
+    const chatRef = ref(db,`users/${currentUser.uid}/chats/${id_chat}_${name}/active`);
+
+    await update(chatRef,{visible: false});
+  }
+
+  const addVisibleRecevier = async() => {
+    const db = getDatabase(app);
+    const chatRef = ref(db,`users/${id_chat}/chats/${currentUser.uid}_${currentUser.displayName}/active`);
+
+    await update(chatRef,{visible: false});
+  }
+
   const addMessage = async() => {
     try{
       await addMessageAuthor();
-      await addMessageRecevier();
+      await addMessageRecevier(); 
+      await updateLastAuthor();
+      await updateLastRecevier();
+      await addVisibleAuthor();
+      await addVisibleRecevier();
 
       setMessage('');
     }catch(error: any){
@@ -124,70 +197,136 @@ const ChatPage = () => {
     }
   }
 
+  const toggleVisible = async(id: string,date_id: string,value: boolean) => {
+    const db = getDatabase(app);
+    const messageRef = ref(db,`users/${currentUser.uid}/chats/${id_chat}_${name}/${date_id}/chat/${id}`);
+
+    await update(messageRef,{visible: value});
+  }
+
+  const updateVisible = (message_arr: any[],id: string,date_id: string) => {
+    message_arr.forEach((item: any) => {
+      toggleVisible(item.message_id,date_id,item.message_id === id);
+    })
+  }
+
+  const deleteMessage = async(id: string,date_id: string) => {
+    const db = getDatabase(app);
+    const messageRef = ref(db,`users/${currentUser.uid}/chats/${id_chat}_${name}/${date_id}/chat/${id}`);
+
+    await update(messageRef,{message: 'Message deleted'});
+  }
+
+  const updateLast = async() => {
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${currentUser.uid}/chats/${id_chat}_${name}/last-message`);
+  
+    await update(userRef,{message: 'Message deleted'});
+  }
+
+  const delete_update = async(id: string,date_id: string) => {
+    try{
+      await deleteMessage(id,date_id);
+      await updateLast();
+    }catch(error: any){
+      console.log('Error deleting message: ',error);
+    }
+  }
+
+
   return (
-    <View style={styles.mainContainer}>
-      <View style={styles.headerContainer}>
-        <View style={styles.headerInfo}>
-          <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              style={{marginRight: 10}}
-            >
-              <AntDesign name="arrowleft" size={24} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.title}>{name}</Text>
-          </View>
-          <View style={styles.flex}>
-            <TouchableOpacity>
-              <AntDesign style={{marginRight: 10}} name="search1" size={24} color="#90E0EF" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              
-            >
-              <Feather name="more-vertical" size={24} color="#90E0EF" />
-            </TouchableOpacity>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={-10} 
+      style={{flex: 1,backgroundColor: '#CAF0F8'}}
+    >
+      <View style={styles.mainContainer}>
+        <View style={styles.headerContainer}>
+          <View style={styles.headerInfo}>
+            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{marginRight: 10}}
+              >
+                <AntDesign name="arrowleft" size={24} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.title}>{name}</Text>
+            </View>
+            <View style={styles.flex}>
+              <TouchableOpacity>
+                <AntDesign style={{marginRight: 10}} name="search1" size={24} color="#90E0EF" />
+              </TouchableOpacity>
+              <TouchableOpacity
+      
+              >
+                <Feather name="more-vertical" size={24} color="#90E0EF" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-
-      <ScrollView 
-        style={{marginTop: 30,marginBottom: 70}}
-        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-      >
-        {chat.map((item: any) => (
-          <View>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 130, marginTop: 30}}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+          ref={scrollViewRef}
+        >
+          {chat.length === 0
+          ? <Text style={{color: '#03045E',fontSize: 17,padding: 30,alignItems: 'center',textAlign: 'center'}}>No conversation yet :( Start by sending a message &#128522;!</Text>
+          : chat.map((item: any) => (
             <View>
-              <View style={{alignItems: 'center',marginBottom: 20}}>
-                <Text style={{padding: 12,backgroundColor: '#90E0EF',borderRadius: 10,color: '#03045E',fontSize: 16}}>{item.date[0]}.{item.date[1]}.{item.date[2]}</Text>
-              </View>
-            </View>
-            {item.chat.map((msj: any) => (
-              <View style={{paddingLeft: 30,paddingRight: 30,padding: 3,alignItems: msj.type === 'recevier' ? 'flex-start' : 'flex-end'}}>
-                <View style={{backgroundColor: msj.type === 'recevier' ? '#90E0EF' : '#00B4D8',padding: 15,borderRadius: 10,borderTopRightRadius: msj.type === 'recevier' ? '' : 0,borderTopLeftRadius: msj.type === 'recevier' ? 0 : '',minWidth: 100,maxWidth: 220}}>
-                  <Text style={{color: 'white',fontSize: 17,marginBottom: 10}}>{msj.message}</Text>
-                  <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
-                    <AntDesign name="clockcircleo" size={20} color="white" />
-                    <Text style={{color: 'white',marginLeft: 7}}>{msj.hour}:{msj.minutes}</Text>
-                  </View>
+              <View>
+                <View style={{alignItems: 'center',marginBottom: 20}}>
+                  <Text style={{padding: 12,backgroundColor: '#90E0EF',borderRadius: 10,color: '#03045E',fontSize: 16}}>{item.date[0]}.{item.date[1]}.{item.date[2]}</Text>
                 </View>
               </View>
-            ))}
+              {item.chat.map((msj: any) => (
+                <TouchableOpacity
+                  style={{backgroundColor: msj.visible ? '#ACF2FF' : 'transparent'}}
+                >
+                  <View style={{paddingLeft: 30,paddingRight: 30,padding: 3,alignItems: msj.type === 'recevier' ? 'flex-start' : 'flex-end'}}>
+                    <TouchableOpacity
+                      onPressIn={() => updateVisible(item.chat,msj.message_id,`${msj.day}-${msj.month}-${msj.year}`)}
+                    >
+                      <View style={{backgroundColor: msj.type === 'recevier' ? '#90E0EF' : '#00B4D8',padding: 15,borderRadius: 10,borderTopRightRadius: msj.type === 'recevier' ? '' : 0,borderTopLeftRadius: msj.type === 'recevier' ? 0 : '',minWidth: 100,maxWidth: 220}}>
+                        <Text style={{color: 'white',fontSize: 17,marginBottom: 10, fontStyle: msj.message === 'Message deleted' ? 'italic' : 'normal'}}>{msj.message}</Text>
+                        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+                          <AntDesign name="clockcircleo" size={20} color="white" />
+                          <Text style={{color: 'white',marginLeft: 7}}>{msj.hour}:{msj.minutes}</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                  {msj.visible && 
+                    <View style={{position: 'absolute',right: 40,display: 'flex',flexDirection: 'row',alignItems: 'center',backgroundColor: '#90E0EF',padding: 10,borderRadius: 10,top: 10}}>
+                      <TouchableOpacity
+                        onPress={() => delete_update(msj.message_id,`${msj.day}-${msj.month}-${msj.year}`)}
+                      >
+                        <Text style={{color: '#03045E',fontSize: 15,marginRight: 15}}>Delete message</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => toggleVisible(msj.message_id,`${msj.day}-${msj.month}-${msj.year}`,false)}
+                      >
+                        <AntDesign name="close" size={24} color="#03045E" />
+                      </TouchableOpacity>
+                    </View>
+                  }
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        </ScrollView>
+        <View style={{position: 'absolute',bottom: 40,left: 20,right: 20,display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
+          <View style={styles.inputContainer}>
+            <TextInput style={styles.input} placeholder="Type a message" placeholderTextColor={'#03045E'} value={message} onChangeText={(text: string) => setMessage(text)}/>
           </View>
-        ))}
-      </ScrollView>
-
-      <View style={styles.sendContainer}>
-        <View style={styles.inputContainer}>
-          <TextInput style={styles.input} placeholder="Type a message" placeholderTextColor={'#03045E'} value={message} onChangeText={(text: string) => setMessage(text)}/>
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={addMessage}
+          >
+            <Feather name="send" size={24} color="white" />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity 
-          style={styles.sendButton}
-          onPress={addMessage}
-        >
-          <Feather name="send" size={24} color="white" />
-        </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -195,7 +334,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: '#CAF0F8',
-    position: 'relative'
+    position: 'relative',
   },
   headerContainer: {
     padding: 20,

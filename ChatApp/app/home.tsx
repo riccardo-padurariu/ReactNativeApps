@@ -4,14 +4,17 @@ import OptionsModal from '@/components/OptionsModal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import { router } from 'expo-router';
-import { getDatabase, onValue, ref } from 'firebase/database';
+import { getDatabase, onValue, ref, remove, update } from 'firebase/database';
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Home = () => {
 
   const [showOptions,setShowOptions] = React.useState(false);
   const [chatList,setChatList] = React.useState([]);
+  const [loading,setLoading] = React.useState(false);
+  const [lastMessagesList,setLastMessagesList] = React.useState([]);
+  const [visibleList,setVisibleList] = React.useState([]);
   const { currentUser } = useAuth();
 
   React.useEffect(() => {
@@ -19,6 +22,7 @@ const Home = () => {
 
     const db = getDatabase(app);
     const userRef = ref(db,`users/${currentUser.uid}/chats`);
+    setLoading(true);
     
     const unsubscribe = onValue(userRef, (snapshot) => {
       if(snapshot.exists()){
@@ -33,6 +37,7 @@ const Home = () => {
       }else{
         setChatList([]);
       }
+      setLoading(false);
     },(error: any) => {
       console.log('Error fecthing chats: ',error);
     })
@@ -40,6 +45,51 @@ const Home = () => {
     return () => unsubscribe();
 
   },[currentUser]);
+
+  React.useEffect(() => {
+    console.log(chatList);
+    const list = chatList.map((item: any) => {
+      return item["last-message"] || null;
+    })
+
+    console.log('list: ',list);
+
+    setLastMessagesList(list);
+
+  },[chatList]);
+
+  React.useEffect(() => {
+    console.log(chatList);
+    const list = chatList.map((item: any) => {
+      return item["active"] || null;
+    })
+
+    console.log('list: ',list);
+
+    setVisibleList(list);
+
+  },[chatList]);
+
+  const updateVisible = async(id: string,value: boolean) => {
+    const db = getDatabase(app);
+    const chatRef = ref(db,`users/${currentUser.uid}/chats/${id}/active`);
+    
+    await update(chatRef,{visible: value});
+  }
+
+  const updateAllVisible = (id: string) => {
+    chatList.forEach((item: any) => {
+      updateVisible(`${item.firebaseKey[0]}_${item.firebaseKey[1]}`, `${item.firebaseKey[0]}_${item.firebaseKey[1]}` === id);
+    })
+  }
+
+  const deleteChat = async(id: string) => {
+    const db = getDatabase(app);
+    const chatRef = ref(db,`users/${currentUser.uid}/chats/${id}`);
+
+    await remove(chatRef);
+  }
+
 
   return (
     <View style={styles.mainContainer}>
@@ -60,21 +110,50 @@ const Home = () => {
       </View>
 
       <ScrollView>
-        {chatList.map((item: any) => (
+        {loading 
+        ? <ActivityIndicator style={{marginTop: 100}} size={'large'} color={'#03045E'} />
+        : chatList.map((item: any,index: number) => (
           <TouchableOpacity
             onPress={() => router.push({pathname: '/[id_chat]',params: {id_chat: item.firebaseKey[0],name: item.firebaseKey[1]}})}
           >
-            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',padding: 15,backgroundColor:'#90E0EF',height: 85}}>
+            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',padding: 15,backgroundColor:'#90E0EF',height: 85,borderBottomWidth: 1,borderBottomColor: '#0077B6'}}>
               <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
                 <View style={{backgroundColor: '#CAF0F8', padding: 10,borderRadius: '50%'}}>
                   <Feather name="user" size={28} color="#03045E" />
                 </View>
-                <Text style={{marginLeft: 10,fontSize: 18}}>{item.firebaseKey[1]}</Text>
+                <View style={{marginLeft: 10}}>
+                  <Text style={{fontSize: 18,marginBottom: 5}}>{item.firebaseKey[1]}</Text>
+                  <View>
+                    <Text style={{color: '#03045E',fontStyle: lastMessagesList[index]?.message === 'Message deleted' ? 'italic' : 'normal'}}>{lastMessagesList[index]?.type === 'author' ? 'You: ' : ''}{lastMessagesList[index]?.message ?? 'No recent messages'}</Text>
+                  </View>
+                </View>
               </View>
-              <TouchableOpacity>
-                <Feather name="more-vertical" size={24} color="#03045E" />
-              </TouchableOpacity>
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity
+                  style={{marginBottom: 10}}
+                  onPress={() => updateAllVisible(`${item.firebaseKey[0]}_${item.firebaseKey[1]}`)}
+                >
+                  <Feather name="more-vertical" size={24} color="#03045E" />
+                </TouchableOpacity>
+                <Text style={{color: '#03045E'}}>{lastMessagesList[index]?.hour}:{lastMessagesList[index]?.minutes}</Text>
+              </View>
             </View>
+
+            {visibleList[index]?.visible &&
+              <View style={{position: 'absolute',right: 40,display: 'flex',flexDirection: 'row',alignItems: 'center',backgroundColor: '#CAF0F8',padding: 10,borderRadius: 10,top: 10}}>
+                <TouchableOpacity
+                  onPress={() => deleteChat(`${item.firebaseKey[0]}_${item.firebaseKey[1]}`)}
+                >
+                  <Text style={{color: '#03045E',fontSize: 15,marginRight: 15}}>Delete message</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => updateVisible(`${item.firebaseKey[0]}_${item.firebaseKey[1]}`,false)}
+                >
+                  <AntDesign name="close" size={24} color="#03045E" />
+                </TouchableOpacity>
+              </View>
+            }
+
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -122,10 +201,10 @@ const styles = StyleSheet.create({
   },
   newButton: {
     position: 'absolute',
-    bottom: 25,
-    right: 25,
+    bottom: 28,
+    right: 28,
     backgroundColor: '#03045E',
-    padding: 10,
+    padding: 20,
     borderRadius: '50%'
   }
 });

@@ -44,15 +44,21 @@ const Register = () => {
         <Text style={styles.title}>Welcome!</Text>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Username</Text>
-          <TextInput style={styles.input} placeholder="Enter username" value={name} onChangeText={(text: any) => setName(text)} />
+          <View>
+            <TextInput style={styles.input} placeholder="Enter username" value={name} onChangeText={(text: any) => setName(text)} />
+          </View>
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} placeholder="Enter email" value={email} onChangeText={(text: any) => setEmail(text)} />
+          <View>
+            <TextInput style={styles.input} placeholder="Enter email" value={email} onChangeText={(text: any) => setEmail(text)} />
+          </View>
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password</Text>
-          <TextInput style={styles.input} placeholder="Enter password" value={password} onChangeText={(text: any) => setPassword(text)} />
+          <View>
+            <TextInput secureTextEntry style={styles.input} placeholder="Enter password" value={password} onChangeText={(text: any) => setPassword(text)} />
+          </View>
         </View>
         <TouchableOpacity
           style={styles.button}
@@ -64,7 +70,7 @@ const Register = () => {
           <Text style={{alignItems: 'center',justifyContent: 'center'}}>You already have an account?
           </Text>
           <TouchableOpacity
-            onPress={() => router.push('/register')}
+            onPress={() => router.push('/login')}
           >
             <Text style={{textDecorationLine: 'underline'}}>Login</Text>
           </TouchableOpacity>
@@ -100,7 +106,8 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#CAF0F8',
     borderRadius: 10,
-    marginTop: 5
+    marginTop: 5,
+    padding: 10
   },
   button: {
     alignItems: 'center',
