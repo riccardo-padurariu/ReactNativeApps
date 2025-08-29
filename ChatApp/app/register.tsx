@@ -32,7 +32,6 @@ const Register = () => {
       if (user) router.replace('/home');
 
     } catch (error: any) {
-      console.log(error)
       alert('Sign in failed: ' + error.message);
     }
   }

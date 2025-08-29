@@ -1,5 +1,6 @@
 import { useAuth } from "@/Authentification/AuthContext";
 import { app } from "@/Authentification/Firebase";
+import { generate } from "@/utils";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams } from "expo-router";
@@ -13,6 +14,7 @@ const ChatPage = () => {
   const { currentUser } = useAuth();
   const [message,setMessage] = React.useState('');
   const [chat,setChat] = React.useState<any[]>([]);
+  const [recevierChat,setRecevierChat] = React.useState([]);
   const scrollViewRef = React.useRef<ScrollView | null>(null);
 
   React.useEffect(() => {
@@ -84,6 +86,73 @@ const ChatPage = () => {
   },[currentUser]);
 
   React.useEffect(() => {
+    if(!currentUser) return ;
+
+    const db = getDatabase(app);
+    const listRef = ref(db,`users/${id_chat}/chats/${currentUser.uid}_${currentUser.displayName}`);
+
+    const unsubscribe = onValue(listRef, (snapshot) => {
+      if(snapshot.exists()){
+        const chatData = snapshot.val();
+
+        const finalArr = Object.entries(chatData).map(([key,value]) => ({
+          ...value,
+          date: key.split('-')
+        }));
+
+        const chatArr = finalArr.filter((item: any) => item.date[0] != 'last' && item.date[0] != 'active'); 
+
+
+        chatArr.forEach((item: any) => {
+          if(item.chat){
+
+            const chat_arr = Object.entries(item.chat).map(([key,value]) => ({
+              ...value,
+              message_id: key
+            }));
+
+            chat_arr.sort((a: any,b: any) => {
+              if(Number(a.year) > Number(b.year)) return 1;
+              else if(Number(a.year) < Number(b.year)) return -1;
+              else if(Number(a.month) > Number(b.month)) return 1;
+              else if(Number(a.month) < Number(b.month)) return -1;
+              else if(Number(a.day) > Number(b.day)) return 1;
+              else if(Number(a.day) < Number(b.day)) return -1;
+              else if(Number(a.hour) > Number(b.hour)) return 1;
+              else if(Number(a.hour) < Number(b.hour)) return -1;
+              else if(Number(a.minutes) > Number(b.minutes)) return 1;
+              else if(Number(a.minutes) < Number(b.minutes)) return -1;
+              else if(a.seconds > b.seconds) return 1;
+              else return -1;
+            });
+
+            item.chat = chat_arr;
+          }
+        })
+
+        chatArr.sort((a: any,b: any) => {
+          if(a.date[2] > b.date[2]) return 1;
+          else if(Number(a.date[2]) < Number(b.date[2])) return -1;
+          else if(Number(a.date[1]) > Number(b.date[1])) return 1;
+          else if(Number(a.date[1]) < Number(b.date[1])) return -1;
+          else if(Number(a.date[0]) > Number(b.date[0])) return 1;
+          else return -1;
+        });
+
+        setRecevierChat(chatArr);
+
+      }else{
+        setRecevierChat([]);
+      }
+    },(error: any) => {
+      console.log('Error fetching chat: ', error);
+    })
+
+    return () => unsubscribe();
+
+  },[currentUser]);
+
+  React.useEffect(() => {
     if (chat.length > 0) {
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -92,7 +161,7 @@ const ChatPage = () => {
   }, [chat]);
 
 
-  const addMessageAuthor = async() => {
+  const addMessageAuthor = async(new_id: string) => {
     const date = new Date();
     const date_id = `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}-${date.getMonth()+1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1}-${date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear()}`;
     const db = getDatabase(app);
@@ -106,13 +175,14 @@ const ChatPage = () => {
       minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
       seconds: date.getSeconds(),
       message: message,
-      visible: false
+      visible: false,
+      id: new_id
     };
 
     await push(userRef,data);
   }
 
-  const addMessageRecevier = async() => {
+  const addMessageRecevier = async(new_id: string) => {
     const date = new Date();
     const date_id = `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}-${date.getMonth()+1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1}-${date.getFullYear() < 10 ? `0${date.getFullYear()}` : date.getFullYear()}`;
     const db = getDatabase(app);
@@ -126,7 +196,8 @@ const ChatPage = () => {
       minutes: date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
       seconds: date.getSeconds(),
       message: message,
-      visible: false
+      visible: false,
+      id: new_id
     };
 
     await push(userRef,data);
@@ -184,8 +255,11 @@ const ChatPage = () => {
 
   const addMessage = async() => {
     try{
-      await addMessageAuthor();
-      await addMessageRecevier(); 
+
+      const new_id = generate();
+
+      await addMessageAuthor(new_id);
+      await addMessageRecevier(new_id); 
       await updateLastAuthor();
       await updateLastRecevier();
       await addVisibleAuthor();
@@ -217,6 +291,13 @@ const ChatPage = () => {
     await update(messageRef,{message: 'Message deleted'});
   }
 
+  const deleteMessageRecevier = async(id: string,date_id: string) => {
+    const db = getDatabase(app);
+    const messageRef = ref(db,`users/${id_chat}/chats/${currentUser.uid}_${currentUser.displayName}/${date_id}/chat/${id}`);
+
+    await update(messageRef,{message: 'Message deleted'});
+  }
+
   const updateLast = async() => {
     const db = getDatabase(app);
     const userRef = ref(db,`users/${currentUser.uid}/chats/${id_chat}_${name}/last-message`);
@@ -224,15 +305,43 @@ const ChatPage = () => {
     await update(userRef,{message: 'Message deleted'});
   }
 
-  const delete_update = async(id: string,date_id: string) => {
+  const updateLastRecevierDelete = async() => {
+    const db = getDatabase(app);
+    const userRef = ref(db,`users/${id_chat}/chats/${currentUser.uid}_${currentUser.displayName}/last-message`);
+  
+    await update(userRef,{message: 'Message deleted'});
+  }
+
+  const delete_update = async(id: string,date_id: string,msj_id: string) => {
     try{
+
+      let author_id = "",index_author;
+      chat.forEach((item: any) => {
+        if(`${item.date[0]}-${item.date[1]}-${item.date[2]}` === date_id){
+          item.chat.forEach((item: any,index: number) => {
+            if(item.id === msj_id) author_id = item.message_id,index_author = index;
+          })
+        }
+      })
+
       await deleteMessage(id,date_id);
-      await updateLast();
+      if(index_author === chat.length - 1) await updateLast();
+
+      let message_id = "",index;
+      recevierChat.forEach((item: any) => {
+        if(`${item.date[0]}-${item.date[1]}-${item.date[2]}` === date_id){
+          item.chat.forEach((item: any,index: number) => {
+            if(item.id === msj_id) message_id = item.message_id,index = index;
+          })
+        }
+      })
+
+      await deleteMessageRecevier(message_id,date_id);
+      if(index === recevierChat.length - 1) await updateLastRecevierDelete();
     }catch(error: any){
       console.log('Error deleting message: ',error);
     }
   }
-
 
   return (
     <KeyboardAvoidingView
@@ -284,7 +393,10 @@ const ChatPage = () => {
                 >
                   <View style={{paddingLeft: 30,paddingRight: 30,padding: 3,alignItems: msj.type === 'recevier' ? 'flex-start' : 'flex-end'}}>
                     <TouchableOpacity
-                      onPressIn={() => updateVisible(item.chat,msj.message_id,`${msj.day}-${msj.month}-${msj.year}`)}
+                      onPressIn={() => {
+                        if(msj.type === 'author')
+                          updateVisible(item.chat,msj.message_id,`${msj.day}-${msj.month}-${msj.year}`);
+                      }}
                     >
                       <View style={{backgroundColor: msj.type === 'recevier' ? '#90E0EF' : '#00B4D8',padding: 15,borderRadius: 10,borderTopRightRadius: msj.type === 'recevier' ? '' : 0,borderTopLeftRadius: msj.type === 'recevier' ? 0 : '',minWidth: 100,maxWidth: 220}}>
                         <Text style={{color: 'white',fontSize: 17,marginBottom: 10, fontStyle: msj.message === 'Message deleted' ? 'italic' : 'normal'}}>{msj.message}</Text>
@@ -295,10 +407,11 @@ const ChatPage = () => {
                       </View>
                     </TouchableOpacity>
                   </View>
-                  {msj.visible && 
+                  {msj.visible && msj.type === 'author' && 
                     <View style={{position: 'absolute',right: 40,display: 'flex',flexDirection: 'row',alignItems: 'center',backgroundColor: '#90E0EF',padding: 10,borderRadius: 10,top: 10}}>
                       <TouchableOpacity
-                        onPress={() => delete_update(msj.message_id,`${msj.day}-${msj.month}-${msj.year}`)}
+                        onPress={() => delete_update(msj.message_id,`${msj.day}-${msj.month}-${msj.year}`,msj.id)
+                        }
                       >
                         <Text style={{color: '#03045E',fontSize: 15,marginRight: 15}}>Delete message</Text>
                       </TouchableOpacity>

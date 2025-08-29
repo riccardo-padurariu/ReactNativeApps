@@ -13,13 +13,12 @@ const Login = () => {
 
   const login = async() => {
     try{
-      const user = signInWithEmailAndPassword(auth,email,password).then((userCredential) => {
-        setCurrentUser(userCredential.user);
-        console.log(userCredential.user.displayName);
-        router.replace('/home');
-      })
-    }catch(error){
-      alert('Error logging in: ' + error);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      setCurrentUser(userCredential.user);
+      console.log(userCredential.user.displayName);
+      router.replace('/home');
+    }catch(error: any){
+      alert('Error logging in: ' + error.message);
     }
   }
 

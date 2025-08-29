@@ -90,7 +90,6 @@ const Home = () => {
     await remove(chatRef);
   }
 
-
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
@@ -144,7 +143,7 @@ const Home = () => {
                 <TouchableOpacity
                   onPress={() => deleteChat(`${item.firebaseKey[0]}_${item.firebaseKey[1]}`)}
                 >
-                  <Text style={{color: '#03045E',fontSize: 15,marginRight: 15}}>Delete message</Text>
+                  <Text style={{color: '#03045E',fontSize: 15,marginRight: 15}}>Delete chat</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => updateVisible(`${item.firebaseKey[0]}_${item.firebaseKey[1]}`,false)}
